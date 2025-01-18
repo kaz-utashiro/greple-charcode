@@ -1,11 +1,11 @@
 
 # NAME
 
-App::Greple::unicode::name - It's new $module
+App::Greple::unicode::name - greple -Municode::name module
 
 # SYNOPSIS
 
-    use App::Greple::unicode::name;
+    greple -Muncode::name
 
 # DESCRIPTION
 
@@ -13,11 +13,11 @@ App::Greple::unicode::name is ...
 
 # LICENSE
 
-Copyright (C) Kazumasa Utashiro.
+Copyright ©︎ 2025 Kazumasa Utashiro.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 # AUTHOR
 
-Kazumasa Utashiro <kaz@utashiro.com>
+Kazumasa Utashiro
