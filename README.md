@@ -1,11 +1,11 @@
 
 # NAME
 
-App::Greple::unicode - greple -Municode module
+App::Greple::charcode - greple -Mcharcode module
 
 # SYNOPSIS
 
-    greple -Muincode
+    greple -Mcharcode
 
 # VERSION
 
@@ -13,11 +13,11 @@ Version 0.01
 
 # DESCRIPTION
 
-App::Greple::unicode is ...
+App::Greple::charcode is ...
 
 # LICENSE
 
-Copyright ©︎ 2025 Kazumasa Utashiro.
+Copyright︎ ©︎ 2025 Kazumasa Utashiro.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

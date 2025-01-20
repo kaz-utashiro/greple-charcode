@@ -1,4 +1,4 @@
-package App::Greple::unicode::name;
+package App::Greple::charcode;
 
 use 5.014;
 use warnings;
@@ -10,11 +10,11 @@ our $VERSION = "0.01";
 
 =head1 NAME
 
-App::Greple::unicode::name - greple -Municode::name module
+App::Greple::charcode - greple -Mcharcode module
 
 =head1 SYNOPSIS
 
-    greple -Muncode::name
+    greple -Mcharcode
 
 =head1 VERSION
 
@@ -22,7 +22,7 @@ Version 0.01
 
 =head1 DESCRIPTION
 
-App::Greple::unicode::name is ...
+App::Greple::charcode is ...
 
 =head1 LICENSE
 
