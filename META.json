@@ -42,7 +42,7 @@
       },
       "runtime" : {
          "requires" : {
-            "App::Greple" : "9.18",
+            "App::Greple" : "9.19",
             "Unicode::UCD" : "0",
             "perl" : "5.014"
          }

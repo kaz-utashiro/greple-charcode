@@ -87,8 +87,8 @@ sub describe {
     my @s;
     push @s, "{$_}"                           if $config->{char};
     push @s, sprintf("\\w{%d}", vwidth($_))   if $config->{width};
-    push @s, join '', map { charcode() } /./g if $config->{code};
-    push @s, join '', map { charname() } /./g if $config->{name};
+    push @s, join '', map { charcode } /./g if $config->{code};
+    push @s, join '', map { charname } /./g if $config->{name};
     join "\N{NBSP}", @s;
 }
 
@@ -119,17 +119,14 @@ sub prepare {
 	    }
 	    $pos += $w;
 	}
-	@annon = map { $_->[1] } @annon;
-	if ($config->{align} and @annon and
-	    (my $indent = $annon[-1] =~ /─/p && vwidth(${^PREMATCH}))) {
+	if ($config->{align} and @annon and (my $max_indent = $annon[-1]->[0])) {
 	    for (@annon) {
-		s{(?=[─])}{
-		    my $len = $indent - vwidth(${^PREMATCH});
-		    $len > 0 ? "─" x $len : '';
-		}pe;
+		if ((my $room = $max_indent - $_->[0]) > 0) {
+		    $_->[1] =~ s/(?=([─]))/$1 x $room/e;
+		}
 	    }
 	}
-	push @annotation, @annon;
+	push @annotation, map { $_->[1] } @annon;
     }
 }
 
@@ -142,6 +139,8 @@ sub annotate {
 1;
 
 __DATA__
+
+option default --separate --annotate
 
 option --annotate \
     --postgrep &__PACKAGE__::prepare \
