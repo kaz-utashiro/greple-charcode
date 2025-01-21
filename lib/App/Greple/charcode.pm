@@ -99,28 +99,23 @@ sub prepare {
 	my($b, @match) = @$r;
 	my @slice = $grep->slice_result($r);
 	my $pos = 0;
-	my $lead = '';
+	my $indent = '';
 	while (my($i, $slice) = each @slice) {
 	    my $w = vwidth($slice);
 	    $pos += $w;
 	    if ($i % 2 == 0) {
-		$lead .= ' ' x $w if $w > 0;
+		$indent .= ' ' x $w if $w > 0;
 		next;
 	    }
 	    my $out = '';
 	    my $desc = describe($slice);
-	    if (@annon == 0 or $annon[-1][0] != $pos) {
-		if ($w > 0) {
-		    $out = sprintf "%s┌─ %s", $lead, $desc;
-		    $lead .= '│';
-		} else {
-		    $out = sprintf "%s┌─ %s", substr($lead, 0, -1), $desc;
-		    substr($lead, -1, 1) = '│';
-		}
-		$lead .= ' ' x ($w - 1) if $w > 1;
-	    } else {
-		$out = sprintf "%s├─ %s", substr($lead, 0, -1), $desc;
+	    if ($w == 0) {
+		$indent =~ s/│ *$//;
 	    }
+	    my $mark = (@annon > 0 and $annon[-1][0] == $pos) ? '├' : '┌';
+	    $out = sprintf "%s%s─ %s", $indent, $mark, $desc;
+	    $indent .= '│';
+	    $indent .= ' ' x ($w - 1) if $w > 1;
 	    push @annon, [ $pos, $out ];
 	}
 	if ($config->{align} and @annon and (my $max_pos = $annon[-1][0])) {
