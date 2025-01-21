@@ -37,7 +37,6 @@ Kazumasa Utashiro
 
 =cut
 
-use Data::Dumper;
 use Getopt::EX::Config qw(config);
 
 my $config = Getopt::EX::Config->new(
@@ -101,27 +100,32 @@ sub prepare {
 	my @slice = $grep->slice_result($r);
 	my $pos = 0;
 	my $lead = '';
-	while (my($i, $s) = each @slice) {
-	    my $out = '';
-	    my $w = vwidth($s);
-	    if ($i % 2) {
-		my $desc = describe($slice[$i]);
-		if (@annon == 0 or $annon[-1]->[0] ne $pos) {
-		    $out = sprintf "%s┌─ %s\n", $lead, $desc;
-		    $lead .= '│';
-		    $lead .= ' ' x ($w - 1) if $w > 1;
-		} else {
-		    $out = sprintf "%s├─ %s\n", substr($lead, 0, -1), $desc;
-		}
-		push @annon, [ $pos, $out ];
-	    } else {
-		$lead .= ' ' x $w if $w > 0;
-	    }
+	while (my($i, $slice) = each @slice) {
+	    my $w = vwidth($slice);
 	    $pos += $w;
+	    if ($i % 2 == 0) {
+		$lead .= ' ' x $w if $w > 0;
+		next;
+	    }
+	    my $out = '';
+	    my $desc = describe($slice);
+	    if (@annon == 0 or $annon[-1][0] != $pos) {
+		if ($w > 0) {
+		    $out = sprintf "%s┌─ %s", $lead, $desc;
+		    $lead .= '│';
+		} else {
+		    $out = sprintf "%s┌─ %s", substr($lead, 0, -1), $desc;
+		    substr($lead, -1, 1) = '│';
+		}
+		$lead .= ' ' x ($w - 1) if $w > 1;
+	    } else {
+		$out = sprintf "%s├─ %s", substr($lead, 0, -1), $desc;
+	    }
+	    push @annon, [ $pos, $out ];
 	}
-	if ($config->{align} and @annon and (my $max_indent = $annon[-1]->[0])) {
+	if ($config->{align} and @annon and (my $max_pos = $annon[-1][0])) {
 	    for (@annon) {
-		if ((my $room = $max_indent - $_->[0]) > 0) {
+		if ((my $room = $max_pos - $_->[0]) > 0) {
 		    $_->[1] =~ s/(?=([─]))/$1 x $room/e;
 		}
 	    }
@@ -132,7 +136,7 @@ sub prepare {
 
 sub annotate {
     our @annotation;
-    print shift(@annotation) if @annotation > 0;
+    say shift(@annotation) if @annotation > 0;
     undef;
 }
 
