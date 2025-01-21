@@ -114,8 +114,7 @@ sub prepare {
 	    }
 	    my $mark = (@annon > 0 and $annon[-1][0] == $pos) ? '├' : '┌';
 	    $out = sprintf "%s%s─ %s", $indent, $mark, $desc;
-	    $indent .= '│';
-	    $indent .= ' ' x ($w - 1) if $w > 1;
+	    $indent .= sprintf("%-*s", $w, '│');
 	    push @annon, [ $pos, $out ];
 	}
 	if ($config->{align} and @annon and (my $max_pos = $annon[-1][0])) {
