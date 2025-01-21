@@ -56,6 +56,7 @@ use Text::ANSI::Fold::Util qw(ansi_width);
 Text::ANSI::Fold->configure(expand => 1);
 *vwidth = \&ansi_width;
 use Unicode::UCD qw(charinfo);
+use Data::Dumper;
 
 sub charname {
     local $_ = @_ ? shift : $_;
@@ -84,8 +85,8 @@ sub code {
 sub describe {
     local $_ = shift;
     my @s;
-    push @s, "{$_}"                           if $config->{char};
-    push @s, sprintf("\\w{%d}", vwidth($_))   if $config->{width};
+    push @s, "{$_}"                         if $config->{char};
+    push @s, sprintf("\\w{%d}", vwidth($_)) if $config->{width};
     push @s, join '', map { charcode } /./g if $config->{code};
     push @s, join '', map { charname } /./g if $config->{name};
     join "\N{NBSP}", @s;
@@ -95,37 +96,49 @@ sub prepare {
     our @annotation;
     my $grep = shift;
     for my $r ($grep->result) {
-	my @annon;
 	my($b, @match) = @$r;
 	my @slice = $grep->slice_result($r);
 	my $pos = 0;
+	my $progress = '';
 	my $indent = '';
+	my @annon;
 	while (my($i, $slice) = each @slice) {
-	    my $w = vwidth($slice);
+	    my $w = $slice ne '' ? vwidth($slice) : 0;
+	    my $topmark = '';
+	    if ($i % 2) {
+		$topmark = '│';
+		my $mark = do {
+		    if (@annon > 0 and $annon[-1][0] == ($pos + $w)) {
+			$indent =~ s/│ *\z//;
+			'├';
+		    } else {
+			if ($w == 0 and $i > 0) {
+			    substr($indent, -vwidth(_lastchar($progress))) = '';
+			}
+			'┌';
+		    }
+		};
+		my $out = sprintf("%s%s─ %s", $indent, $mark, describe($slice));
+		push @annon, [ $pos + $w, $out ];
+	    }
 	    $pos += $w;
-	    if ($i % 2 == 0) {
-		$indent .= ' ' x $w if $w > 0;
-		next;
-	    }
-	    my $out = '';
-	    my $desc = describe($slice);
-	    if ($w == 0) {
-		$indent =~ s/│ *$//;
-	    }
-	    my $mark = (@annon > 0 and $annon[-1][0] == $pos) ? '├' : '┌';
-	    $out = sprintf "%s%s─ %s", $indent, $mark, $desc;
-	    $indent .= sprintf("%-*s", $w, '│');
-	    push @annon, [ $pos, $out ];
+	    $indent .= sprintf("%-*s", $w, $topmark);
+	    $progress .= $slice;
 	}
-	if ($config->{align} and @annon and (my $max_pos = $annon[-1][0])) {
+	@annon or next;
+	if ($config->{align} and (my $max_pos = $annon[-1][0])) {
 	    for (@annon) {
-		if ((my $room = $max_pos - $_->[0]) > 0) {
-		    $_->[1] =~ s/(?=([─]))/$1 x $room/e;
+		if ((my $extend = $max_pos - $_->[0]) > 0) {
+		    $_->[1] =~ s/(?=([─]))/$1 x $extend/e;
 		}
 	    }
 	}
-	push @annotation, map { $_->[1] } @annon;
+	push @annotation, map $_->[1], @annon;
     }
+}
+
+sub _lastchar {
+    ( $_[0] =~ /(\X)$/ )[0];
 }
 
 sub annotate {
@@ -138,7 +151,7 @@ sub annotate {
 
 __DATA__
 
-option default --separate --annotate
+option default --separate --annotate --uniqcolor
 
 option --annotate \
     --postgrep &__PACKAGE__::prepare \
