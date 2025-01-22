@@ -103,27 +103,33 @@ sub prepare {
 	my $indent = '';
 	my @annon;
 	while (my($i, $slice) = each @slice) {
-	    my $w = $slice ne '' ? vwidth($slice) : 0;
-	    my $topmark = '';
+	    my $new_pos = $slice eq '' ? $pos : vwidth($progress . $slice);
+	    my $w = $new_pos - $pos;
+	    my $indent_mark = '';
 	    if ($i % 2) {
-		$topmark = '│';
+		$indent_mark = '│';
 		my $mark = do {
-		    if (@annon > 0 and $annon[-1][0] == ($pos + $w)) {
-			$indent =~ s/│ *\z//;
+		    if (@annon > 0 and $w == 0) {
+			$pos = $annon[-1][0];
+			substr($indent, $pos) = '';
 			'├';
 		    } else {
 			if ($w == 0 and $i > 0) {
-			    substr($indent, -vwidth(_lastchar($progress))) = '';
+			    $pos = vwidth($progress =~ s/\X\z//r);
+			    substr($indent, $pos) = '';
 			}
 			'┌';
 		    }
 		};
-		my $out = sprintf("%s%s─ %s", $indent, $mark, describe($slice));
-		push @annon, [ $pos + $w, $out ];
+		my $out = sprintf("%s%s─ %s",
+				  $indent,
+				  $mark,
+				  describe($slice));
+		push @annon, [ $pos, $out ];
 	    }
-	    $pos += $w;
-	    $indent .= sprintf("%-*s", $w, $topmark);
+	    $indent .= sprintf("%-*s", $w, $indent_mark);
 	    $progress .= $slice;
+	    $pos = $new_pos;
 	}
 	@annon or next;
 	if ($config->{align} and (my $max_pos = $annon[-1][0])) {
