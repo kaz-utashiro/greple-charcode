@@ -40,6 +40,7 @@ Kazumasa Utashiro
 use Getopt::EX::Config qw(config);
 
 my $config = Getopt::EX::Config->new(
+    col   => 1,
     char  => 0,
     width => 0,
     code  => 1,
@@ -92,54 +93,66 @@ sub describe {
     join "\N{NBSP}", @s;
 }
 
+package #
+Annon {
+    sub new {
+	my $class = shift;
+	@_ == 3 or die;
+	bless [ @_ ], $class;
+    }
+    sub start :lvalue { shift->[0] }
+    sub end   :lvalue { shift->[1] }
+    sub annon :lvalue { shift->[2] }
+}
+
 sub prepare {
     our @annotation;
     my $grep = shift;
     for my $r ($grep->result) {
 	my($b, @match) = @$r;
 	my @slice = $grep->slice_result($r);
-	my $pos = 0;
+	my $start = 0;
 	my $progress = '';
 	my $indent = '';
 	my @annon;
 	while (my($i, $slice) = each @slice) {
-	    my $new_pos = $slice eq '' ? $pos : vwidth($progress . $slice);
-	    my $w = $new_pos - $pos;
+	    my $end = $slice eq '' ? $start : vwidth($progress . $slice);
+	    my $gap = $end - $start;
 	    my $indent_mark = '';
 	    if ($i % 2) {
 		$indent_mark = '│';
-		my $mark = do {
-		    if (@annon > 0 and $w == 0) {
-			$pos = $annon[-1][0];
-			substr($indent, $pos) = '';
-			'├';
-		    } else {
-			if ($w == 0 and $i > 0) {
-			    $pos = vwidth($progress =~ s/\X\z//r);
-			    substr($indent, $pos) = '';
-			}
-			'┌';
+		my $mark = '┌';
+		if ($gap == 0) {
+		    if (@annon > 0 and $annon[-1]->end == $start) {
+			$mark = '├';
+			$start = $annon[-1]->start;
+			substr($indent, $start) = '';
+		    } elsif ($start > 0) {
+			$start = vwidth($progress =~ s/\X\z//r);
+			substr($indent, $start) = '';
 		    }
-		};
-		my $out = sprintf("%s%s─ %s",
+		}
+		my $column = $config->{col} ? sprintf("%3d ", $start) : '';
+		my $out = sprintf("%s%s─ %s%s",
 				  $indent,
 				  $mark,
+				  $column,
 				  describe($slice));
-		push @annon, [ $pos, $out ];
+		push @annon, Annon->new($start, $end, $out);
 	    }
-	    $indent .= sprintf("%-*s", $w, $indent_mark);
+	    $indent .= sprintf("%-*s", $end - $start, $indent_mark);
 	    $progress .= $slice;
-	    $pos = $new_pos;
+	    $start = $end;
 	}
 	@annon or next;
 	if ($config->{align} and (my $max_pos = $annon[-1][0])) {
 	    for (@annon) {
 		if ((my $extend = $max_pos - $_->[0]) > 0) {
-		    $_->[1] =~ s/(?=([─]))/$1 x $extend/e;
+		    $_->annon =~ s/(?=([─]))/$1 x $extend/e;
 		}
 	    }
 	}
-	push @annotation, map $_->[1], @annon;
+	push @annotation, map $_->annon, @annon;
     }
 }
 
