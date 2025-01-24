@@ -1,7 +1,9 @@
-requires 'perl', '5.014';
+requires 'perl', '5.024';
 
-requires 'App::Greple', '9.19';
-requires 'Getopt::EX::Config';
+requires 'App::Greple', '9.20';
+requires 'Getopt::EX::Config', '0.99';
+requires 'Text::ANSI::Fold::Util';
+requires 'Hash::Util';
 requires 'Unicode::UCD';
 
 on 'test' => sub {

@@ -1,5 +1,5 @@
 {
-   "abstract" : "greple -Mcharcode module",
+   "abstract" : "greple module to annotate unicode character data",
    "author" : [
       "Kazumasa Utashiro"
    ],
@@ -42,10 +42,12 @@
       },
       "runtime" : {
          "requires" : {
-            "App::Greple" : "9.19",
-            "Getopt::EX::Config" : "0",
+            "App::Greple" : "9.20",
+            "Getopt::EX::Config" : "0.99",
+            "Hash::Util" : "0",
+            "Text::ANSI::Fold::Util" : "0",
             "Unicode::UCD" : "0",
-            "perl" : "5.014"
+            "perl" : "5.024"
          }
       },
       "test" : {

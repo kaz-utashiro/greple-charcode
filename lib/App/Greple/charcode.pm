@@ -1,6 +1,6 @@
 package App::Greple::charcode;
 
-use 5.014;
+use 5.024;
 use warnings;
 use utf8;
 
@@ -10,11 +10,23 @@ our $VERSION = "0.01";
 
 =head1 NAME
 
-App::Greple::charcode - greple -Mcharcode module
+App::Greple::charcode - greple module to annotate unicode character data
 
 =head1 SYNOPSIS
 
-    greple -Mcharcode
+B<greple> B<-Mcharcode> ...
+
+B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<greple option> ] ...
+
+  MODULE OPTIONS
+    --[no-]col    display column number
+    --[no-]char   display character itself
+    --[no-]width  display width
+    --[no-]code   display character code
+    --[no-]name   display character name
+    --[no-]align  align annotation
+
+    --config KEY[=VALUE],... (KEY: col, char, width, code, name, align)
 
 =head1 VERSION
 
@@ -22,7 +34,118 @@ Version 0.01
 
 =head1 DESCRIPTION
 
-App::Greple::charcode is ...
+C<App::Greple::charcode> displays Unicode information about the
+matched characters.  It can also visualize zero-width combining or
+hidden characters, which can be useful for examining text containing
+such characters.
+
+The following output, retrieved from this document for non-ASCII
+characters (C<\P{ASCII}>), shows that the character C<\N{VARIATION
+SELECTOR-15}> is included after the copyright character.  The same
+character, presumably left over from editing, is also included after a
+normal ASCII C<t> character.
+
+    $ greple -Mcharcode '\P{ASCII}' charcode.pm
+
+            ┌───  12 \x{fe0e} \N{VARIATION SELECTOR-15}
+            │ ┌─  14 \x{a9} \N{COPYRIGHT SIGN}
+            │ ├─  14 \x{fe0e} \N{VARIATION SELECTOR-15}
+    Copyright︎ ©︎ 2025 Kazumasa Utashiro.
+
+=head1 CONFIGURATION
+
+Configuration parameters can be set in several ways.
+
+=head2 MODULE START FUNCTION
+
+The start function of a module can be specified at the same time as
+the module declaration.
+
+    greple -Mcharcode::config(width,name=0)
+
+    greple -Mcharcode::config=width,name=0
+
+=head2 MODULE PRIVATE OPTION
+
+Module-specific options are specified between C<-Mcharcode> and C<-->.
+
+    greple -Mcharcode --config width,name=0 -- ...
+
+=head2 COMMAND LINE OPTION
+
+Command line option C<--charcode::config> and C<--config> can be used.
+The long option is to avoid option name conflicts when multiple
+modules are used.
+
+    greple -Mcharcode --charcode::config width,name=0
+
+    greple -Mcharcode --config width,name=0
+
+=head1 CONFIGURATION PARAMETERS
+
+=over 7
+
+=item B<col>
+
+(default 1)
+Show column number.
+
+=item B<char>
+
+(default 0)
+Show the character itself.
+
+=item B<width>
+
+(default 0)
+Show the width.
+
+=item B<code>
+
+(default 1)
+Show the character code in hex.
+
+=item B<name>
+
+(default 1)
+Show the Unicode name of the character.
+
+=item B<align>
+
+(default 1)
+Align the description on the same column.
+
+=back
+
+=head1 MODULE OPTIONS
+
+The configuration parameters above have corresponding module options.
+For example, the name parameter can be switched by the C<--name> and
+C<--no-name> options.
+
+=over 7
+
+=item B<--col>, B<--no-col>
+
+=item B<--char>, B<--no-char>
+
+=item B<--width>, B<--no-width>
+
+=item B<--code>, B<--no-code>
+
+=item B<--name>, B<--no-name>
+
+=item B<--align>, B<--no-align>
+
+=back
+
+=head1 INSTALL
+
+cpanm -n B<App::Greple::charcode>
+
+=head1 SEE ALSO
+
+L<App::Greple>
 
 =head1 LICENSE
 
@@ -38,6 +161,7 @@ Kazumasa Utashiro
 =cut
 
 use Getopt::EX::Config qw(config);
+use Hash::Util qw(lock_keys);
 
 my $config = Getopt::EX::Config->new(
     col   => 1,
@@ -47,10 +171,14 @@ my $config = Getopt::EX::Config->new(
     name  => 1,
     align => 1,
 );
+lock_keys %{$config};
 
 sub finalize {
     our($mod, $argv) = @_;
-    $config->deal_with($argv);
+    $config->deal_with(
+	$argv,
+	map { ( "$_!" => \$config->{$_} ) } keys %{$config}
+    );
 }
 
 use Text::ANSI::Fold::Util qw(ansi_width);
@@ -72,8 +200,6 @@ sub name {
 sub charcode {
     local $_ = @_ ? shift : $_;
     state $format = [ qw(\x{%02x} \x{%04x}) ];
-    my $start = $config->{newline} ? "\n" : "";
-    my $end   = $config->{newline} ? "\n" : "";
     s/(.)/code($1)/ger;
 }
 
@@ -93,15 +219,14 @@ sub describe {
     join "\N{NBSP}", @s;
 }
 
-package #
-Annon {
+package Local::Annon {
     sub new {
 	my $class = shift;
 	@_ == 3 or die;
 	bless [ @_ ], $class;
     }
-    sub start :lvalue { shift->[0] }
-    sub end   :lvalue { shift->[1] }
+    sub start         { shift->[0] }
+    sub end           { shift->[1] }
     sub annon :lvalue { shift->[2] }
 }
 
@@ -121,10 +246,10 @@ sub prepare {
 	    my $indent_mark = '';
 	    if ($i % 2) {
 		$indent_mark = '│';
-		my $mark = '┌';
+		my $head = '┌';
 		if ($gap == 0) {
 		    if (@annon > 0 and $annon[-1]->end == $start) {
-			$mark = '├';
+			$head = '├';
 			$start = $annon[-1]->start;
 			substr($indent, $start) = '';
 		    } elsif ($start > 0) {
@@ -135,10 +260,10 @@ sub prepare {
 		my $column = $config->{col} ? sprintf("%3d ", $start) : '';
 		my $out = sprintf("%s%s─ %s%s",
 				  $indent,
-				  $mark,
+				  $head,
 				  $column,
 				  describe($slice));
-		push @annon, Annon->new($start, $end, $out);
+		push @annon, Local::Annon->new($start, $end, $out);
 	    }
 	    $indent .= sprintf("%-*s", $end - $start, $indent_mark);
 	    $progress .= $slice;
@@ -156,10 +281,6 @@ sub prepare {
     }
 }
 
-sub _lastchar {
-    ( $_[0] =~ /(\X)$/ )[0];
-}
-
 sub annotate {
     our @annotation;
     say shift(@annotation) if @annotation > 0;
@@ -173,5 +294,10 @@ __DATA__
 option default --separate --annotate --uniqcolor
 
 option --annotate \
-    --postgrep &__PACKAGE__::prepare \
-    --callback &__PACKAGE__::annotate
+    --postgrep '&__PACKAGE__::prepare' \
+    --callback '&__PACKAGE__::annotate'
+
+option --charcode::config \
+    --prologue &__PACKAGE__::config($<shift>)
+
+option --config --charcode::config
