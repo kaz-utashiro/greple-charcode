@@ -52,6 +52,32 @@ normal ASCII C<t> character.
             │ ├─  14 \x{fe0e} \N{VARIATION SELECTOR-15}
     Copyright︎ ©︎ 2025 Kazumasa Utashiro.
 
+The nasal sound of the K line (カ行) in Japanese is sometimes
+represented by adding a semivoiced dot to the K line character, and
+since Unicode does not define a corresponding character, it is
+represented by combining the original character with a combining
+character.  This module allows you to see how it is done.
+
+    ┌─────────   0 \x{30ab} \N{KATAKANA LETTER KA}
+    ├─────────   0 \x{309a} \N{COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK}
+    │ ┌───────   2 \x{30ad} \N{KATAKANA LETTER KI}
+    │ ├───────   2 \x{309a} \N{COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK}
+    │ │ ┌─────   4 \x{30af} \N{KATAKANA LETTER KU}
+    │ │ ├─────   4 \x{309a} \N{COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK}
+    │ │ │ ┌───   6 \x{30b1} \N{KATAKANA LETTER KE}
+    │ │ │ ├───   6 \x{309a} \N{COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK}
+    │ │ │ │ ┌─   8 \x{30b3} \N{KATAKANA LETTER KO}
+    │ │ │ │ ├─   8 \x{309a} \N{COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK}
+    カ゚キ゚ク゚ケ゚コ゚
+
+=begin html
+
+<p>
+<img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/ka-ko.png">
+</p>
+
+=end html
+
 =head1 CONFIGURATION
 
 Configuration parameters can be set in several ways.
