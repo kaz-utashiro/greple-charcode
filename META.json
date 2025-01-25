@@ -43,7 +43,7 @@
       "runtime" : {
          "requires" : {
             "App::Greple" : "9.20",
-            "Getopt::EX::Config" : "0.99",
+            "Getopt::EX::Config" : "0.9901",
             "Hash::Util" : "0",
             "Text::ANSI::Fold::Util" : "0",
             "Unicode::UCD" : "0",
