@@ -32,7 +32,7 @@ to display annotation for each matched text in the following style.
             │ ├─  14 \x{fe0e} \N{VARIATION SELECTOR-15}
     Copyright︎ ©︎ 2025 Kazumasa Utashiro.
 
-=for html<p>
+=for html <p>
 <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/ka-ko.png">
 </p>
 
