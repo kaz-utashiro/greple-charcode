@@ -21,7 +21,7 @@ App::Greple::charcode - greple module to annotate unicode character data
 
 # VERSION
 
-Version 0.99
+Version 0.9901
 
 # DESCRIPTION
 

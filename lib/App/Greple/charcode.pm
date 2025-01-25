@@ -4,7 +4,7 @@ use 5.024;
 use warnings;
 use utf8;
 
-our $VERSION = "0.99";
+our $VERSION = "0.9901";
 
 =encoding utf-8
 
@@ -30,7 +30,7 @@ B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<greple option> ] ...
 
 =head1 VERSION
 
-Version 0.99
+Version 0.9901
 
 =head1 DESCRIPTION
 
