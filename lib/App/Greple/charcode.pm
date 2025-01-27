@@ -23,21 +23,24 @@ B<greple> B<-Mcharcode> ...
 B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<command option> ] ...
 
   COMMAND OPTION
-    --no-annotate do not print annotation
-    --composite   find composite character (combining character sequence)
-    --precomposed find precomposed character
-    --combind     find both composite and precomposed characters
-    --dt=type     specify decomposition type
+    --no-annotate  do not print annotation
+    --composite    find composite character (combining character sequence)
+    --precomposed  find precomposed character
+    --combind      find both composite and precomposed characters
+    --dt=type      specify decomposition type
+    --ansicode     find ANSI terminal control sequences
 
   MODULE OPTION
-    --[no-]column display column number
-    --[no-]char   display character itself
-    --[no-]width  display width
-    --[no-]code   display character code
-    --[no-]name   display character name
-    --align=#     align annotation
+    --[no-]column  display column number
+    --[no-]char    display character itself
+    --[no-]width   display width
+    --[no-]code    display character code
+    --[no-]name    display character name
+    --[no-]visible display character name
+    --align=#      align annotation
 
-    --config KEY[=VALUE],... (KEY: column, char, width, code, name, align)
+    --config KEY[=VALUE],...
+             (KEY: column char width code name visible align)
 
 =head1 VERSION
 
@@ -129,6 +132,26 @@ Find both B<composite> and B<precomposed> characters.
 Specifies the C<Decomposition_Type>.  It can take three values:
 C<Canonical>, C<Non_Canonical> (C<NonCanon>), or C<None>.
 
+=item B<--ansicode>
+
+Search ANSI terminal control sequence.  This option is convenient to
+use with the C<--visible> option.  Colorized output is disabled by
+default.
+
+    greple -Mcharcode --config name=0,code=0,visible=1 -- --ansicode
+
+To be precise, it searches for CSI Control sequences defined in
+ECMA-48.  Pattern is defined as this.
+
+    define ECMA-CSI <<EOL
+        (?x)
+        # see ECMA-48 5.4 Control sequences
+        (?: \e\[ | \x9b ) # csi
+        [\x30-\x3f]*      # parameter bytes
+        [\x20-\x2f]*      # intermediate bytes
+        [\x40-\x7e]       # final byte
+    EOL
+
 =back
 
 =head1 MODULE OPTIONS
@@ -159,6 +182,11 @@ Default B<true>.
 
 Show the Unicode name of the character.
 Default B<true>.
+
+=item B<-->[B<no->]B<visible>
+
+Display invisible characters in a visible string representation.
+Default False.
 
 =item B<--align>=I<column>
 
@@ -216,6 +244,12 @@ Show the character code in hex.
 (default 1)
 Show the Unicode name of the character.
 
+=item B<visible>
+
+(default 0)
+
+Display invisible characters in a visible string representation.
+
 =item B<align>=I<column>
 
 (default 1)
@@ -260,9 +294,11 @@ our $config = Getopt::EX::Config->new(
     column   => 1,
     char     => 0,
     width    => 0,
+    visible  => 0,
     code     => 1,
     name     => 1,
     align    => \$App::Greple::annotate::config->{align},
+    split    => \$App::Greple::annotate::config->{split},
 );
 my %type = ( align => '=i', '*' => '!' );
 lock_keys %{$config};
@@ -305,11 +341,38 @@ sub code {
     sprintf($format->[$ord > 0xff], $ord);
 }
 
+my %cmap = (
+    "\t" => '\t',
+    "\n" => '\n',
+    "\r" => '\r',
+    "\f" => '\f',
+    "\b" => '\b',
+    "\a" => '\a',
+    "\e" => '\e',
+);
+
+sub control {
+    local $_ = @_ ? shift : $_;
+    if (s/\A([\t\n\r\f\b\a\e])/$cmap{$1}/e) {
+	$_;
+    } elsif (s/\A([\x00-\x1f])/sprintf "\\c%c", ord($1)+0x40/e) {
+	$_;
+    } else {
+	code($_);
+    }
+}
+
+sub visible {
+    local $_ = @_ ? shift : $_;
+    s{([^\pL\pN\pP\pS])}{control($1)}ger;
+}
+
 sub describe {
     local $_ = shift;
     my @s;
     push @s, "{$_}"                         if $config->{char};
     push @s, sprintf("\\w{%d}", vwidth($_)) if $config->{width};
+    push @s, visible($_)                    if $config->{visible};
     push @s, join '', map { charcode } /./g if $config->{code};
     push @s, join '', map { charname } /./g if $config->{name};
     join "\N{NBSP}", @s;
@@ -371,3 +434,24 @@ option --noncanon    --decomposition-type=NonCanon
 
 option --combined \
     --precomposed --composite
+
+define ECMA-CSI <<EOL
+    (?x)
+    # see ECMA-48 5.4 Control sequences
+    (?: \e\[ | \x9b )	# csi
+    [\x30-\x3f]*	# parameter bytes
+    [\x20-\x2f]*	# intermediate bytes
+    [\x40-\x7e]		# final byte
+EOL
+
+expand visible-option \
+    -Mcharcode --config code=0,name=0,visible=1 -- \
+    --no-color
+
+option --ansicode \
+    visible-option \
+    -E ECMA-CSI
+
+option --ansicode-seq \
+    visible-option \
+    -E '(?:ECMA-CSI)+'

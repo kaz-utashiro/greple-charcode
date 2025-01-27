@@ -16,21 +16,24 @@ App::Greple::charcode - greple module to annotate unicode character data
 **greple** **-Mcharcode** \[ _module option_ \] -- \[ _command option_ \] ...
 
     COMMAND OPTION
-      --no-annotate do not print annotation
-      --composite   find composite character (combining character sequence)
-      --precomposed find precomposed character
-      --combind     find both composite and precomposed characters
-      --dt=type     specify decomposition type
+      --no-annotate  do not print annotation
+      --composite    find composite character (combining character sequence)
+      --precomposed  find precomposed character
+      --combind      find both composite and precomposed characters
+      --dt=type      specify decomposition type
+      --ansicode     find ANSI terminal control sequences
 
     MODULE OPTION
-      --[no-]column display column number
-      --[no-]char   display character itself
-      --[no-]width  display width
-      --[no-]code   display character code
-      --[no-]name   display character name
-      --align=#     align annotation
+      --[no-]column  display column number
+      --[no-]char    display character itself
+      --[no-]width   display width
+      --[no-]code    display character code
+      --[no-]name    display character name
+      --[no-]visible display character name
+      --align=#      align annotation
 
-      --config KEY[=VALUE],... (KEY: column, char, width, code, name, align)
+      --config KEY[=VALUE],...
+               (KEY: column char width code name visible align)
 
 # VERSION
 
@@ -118,6 +121,26 @@ will be displayed in a different color.
     Specifies the `Decomposition_Type`.  It can take three values:
     `Canonical`, `Non_Canonical` (`NonCanon`), or `None`.
 
+- **--ansicode**
+
+    Search ANSI terminal control sequence.  This option is convenient to
+    use with the `--visible` option.  Colorized output is disabled by
+    default.
+
+        greple -Mcharcode --config name=0,code=0,visible=1 -- --ansicode
+
+    To be precise, it searches for CSI Control sequences defined in
+    ECMA-48.  Pattern is defined as this.
+
+        define ECMA-CSI <<EOL
+            (?x)
+            # see ECMA-48 5.4 Control sequences
+            (?: \e\[ | \x9b ) # csi
+            [\x30-\x3f]*      # parameter bytes
+            [\x20-\x2f]*      # intermediate bytes
+            [\x40-\x7e]       # final byte
+        EOL
+
 # MODULE OPTIONS
 
 - **--**\[**no-**\]**column**
@@ -144,6 +167,11 @@ will be displayed in a different color.
 
     Show the Unicode name of the character.
     Default **true**.
+
+- **--**\[**no-**\]**visible**
+
+    Display invisible characters in a visible string representation.
+    Default False.
 
 - **--align**=_column_
 
@@ -196,6 +224,12 @@ Module-specific options are specified between `-Mcharcode` and `--`.
 
     (default 1)
     Show the Unicode name of the character.
+
+- **visible**
+
+    (default 0)
+
+    Display invisible characters in a visible string representation.
 
 - **align**=_column_
 
