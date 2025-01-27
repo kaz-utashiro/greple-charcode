@@ -16,6 +16,7 @@ nytprof/
 
 cover_db/
 
+.DS_Store
 *.bak
 *.old
 *~
