@@ -30,6 +30,7 @@ App::Greple::charcode - greple module to annotate unicode character data
       --[no-]code    display character code
       --[no-]name    display character name
       --[no-]visible display character name
+      --[no-]split   put annotattion for each character
       --align=#      align annotation
 
       --config KEY[=VALUE],...
@@ -178,6 +179,11 @@ will be displayed in a different color.
     Align annotation messages.  Defaults to `1`, which aligns to the
     rightmost column; `0` means no align; if a value of `2` or greater
     is given, it aligns to that numbered column.
+
+- **--**\[**no-**\]**split**
+
+    If a pattern matching multiple characters is given, annotate each
+    character independently.
 
 # CONFIGURATION
 

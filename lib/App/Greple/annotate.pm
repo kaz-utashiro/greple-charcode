@@ -57,6 +57,11 @@ Align annotation messages.  Defaults to C<1>, which aligns to the
 rightmost column; C<0> means no align; if a value of C<2> or greater
 is given, it aligns to that numbered column.
 
+=item B<--split>, $B<--no-split>
+
+If a pattern matching multiple characters is given, annotate each
+character independently.
+
 =back
 
 =head1 VARIABLES

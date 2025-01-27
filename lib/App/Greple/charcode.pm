@@ -37,6 +37,7 @@ B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<command option> ] ...
     --[no-]code    display character code
     --[no-]name    display character name
     --[no-]visible display character name
+    --[no-]split   put annotattion for each character
     --align=#      align annotation
 
     --config KEY[=VALUE],...
@@ -193,6 +194,11 @@ Default False.
 Align annotation messages.  Defaults to C<1>, which aligns to the
 rightmost column; C<0> means no align; if a value of C<2> or greater
 is given, it aligns to that numbered column.
+
+=item B<-->[B<no->]B<split>
+
+If a pattern matching multiple characters is given, annotate each
+character independently.
 
 =back
 
