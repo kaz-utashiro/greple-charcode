@@ -250,7 +250,10 @@ sub prepare {
 		$indent_mark = '│';
 		my $head = '┌';
 		if ($gap == 0) {
-		    if ($current->total > 0 and $current->last->end == $start) {
+		    if ($start == 0) {
+			$head = '╾';
+			$indent_mark = '';
+		    } elsif ($current->total > 0 and $current->last->end == $start) {
 			$head = '├';
 			$start = $current->last->start;
 			substr($indent, $start) = '';
