@@ -264,23 +264,21 @@ sub prepare {
 		}
 		my $sub = sub {
 		    my($head, $match) = @_;
-		    sprintf("%s%s─ %s",
-			    $indent,
-			    $head,
+		    sprintf("%s%s─ %s", $indent, $head,
 			    $ANNOTATE->(column => $start, match => $match));
 		};
-		if ($config->{split}) {
-		    my @out;
-		    for ($slice =~ /./g) {
-			my $out = $sub->($head, $_);
-			push @out, Local::Annon->new($start, $end, $out);
-			$head = '├';
+		$current->push( do {
+		    if ($config->{split}) {
+			map {
+			    my $out = $sub->($head, $_);
+			    $head = '├';
+			    Local::Annon->new($start, $end, $out);
+			}
+			$slice =~ /./g;
+		    } else {
+			Local::Annon->new($start, $end, $sub->($head, $slice));
 		    }
-		    $current->push(@out);
-		} else {
-		    my $out = $sub->($head, $slice);
-		    $current->push(Local::Annon->new($start, $end, $out));
-		}
+		} );
 	    }
 	    $indent .= sprintf("%-*s", $end - $start, $indent_mark);
 	    $progress .= $slice;
