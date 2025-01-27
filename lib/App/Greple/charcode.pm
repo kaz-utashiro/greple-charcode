@@ -135,11 +135,9 @@ C<Canonical>, C<Non_Canonical> (C<NonCanon>), or C<None>.
 
 =item B<--ansicode>
 
-Search ANSI terminal control sequence.  This option is convenient to
-use with the C<--visible> option.  Colorized output is disabled by
-default.
-
-    greple -Mcharcode --config name=0,code=0,visible=1 -- --ansicode
+Search ANSI terminal control sequence.  Automatically disables C<name>
+and C<code> parameter and activates C<visible>.  Colorized output is
+disabled too.
 
 To be precise, it searches for CSI Control sequences defined in
 ECMA-48.  Pattern is defined as this.
@@ -454,14 +452,24 @@ define ECMA-CSI <<EOL
     [\x40-\x7e]		# final byte
 EOL
 
-expand visible-option \
+define ECMA-RESET <<EOL
+    (?x)
+    (?: (?: \e\[ | \x9b ) [0;]* m )+
+    (?: (?: \e\[ | \x9b ) [0;]* K )*
+EOL
+
+expand --visible-option \
     -Mcharcode --config code=0,name=0,visible=1 -- \
-    --no-color
+    --cm=N
 
 option --ansicode \
-    visible-option \
+    --visible-option \
+    -E '(?:ECMA-RESET)+|(?:ECMA-CSI)'
+
+option --ansicode-each \
+    --visible-option \
     -E ECMA-CSI
 
 option --ansicode-seq \
-    visible-option \
+    --visible-option \
     -E '(?:ECMA-CSI)+'

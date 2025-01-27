@@ -124,11 +124,9 @@ will be displayed in a different color.
 
 - **--ansicode**
 
-    Search ANSI terminal control sequence.  This option is convenient to
-    use with the `--visible` option.  Colorized output is disabled by
-    default.
-
-        greple -Mcharcode --config name=0,code=0,visible=1 -- --ansicode
+    Search ANSI terminal control sequence.  Automatically disables `name`
+    and `code` parameter and activates `visible`.  Colorized output is
+    disabled too.
 
     To be precise, it searches for CSI Control sequences defined in
     ECMA-48.  Pattern is defined as this.
