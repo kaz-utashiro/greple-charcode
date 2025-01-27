@@ -12,13 +12,24 @@ our $VERSION = "0.9901";
 
 App::Greple::charcode - greple module to annotate unicode character data
 
+=for html <p>
+<img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
+</p>
+
 =head1 SYNOPSIS
 
 B<greple> B<-Mcharcode> ...
 
-B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<greple option> ] ...
+B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<command option> ] ...
 
-  MODULE OPTIONS
+  COMMAND OPTION
+    --no-annotate do not print annotation
+    --composite   find composite character (combining character sequence)
+    --precomposed find precomposed character
+    --combind     find both composite and precomposed characters
+    --dt=type     specify decomposition type
+
+  MODULE OPTION
     --[no-]column display column number
     --[no-]char   display character itself
     --[no-]width  display width
@@ -70,13 +81,55 @@ character.  This module allows you to see how it is done.
     │ │ │ │ ├─   8 \x{309a} \N{COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK}
     カ゚キ゚ク゚ケ゚コ゚
 
-=begin html
-
-<p>
+=for html <p>
 <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/ka-ko.png">
 </p>
 
-=end html
+=head1 COMMAND OPTIONS
+
+=over 7
+
+=item B<--annotate>, B<--no-annotate>
+
+Print annotation or not.  Enabled by default, so use C<--no-annotate>
+to disable it.
+
+=back
+
+=head2 CHARACTER CODE OPTIONS
+
+The following options are used to search for Unicode combining
+characters.
+
+If multiple patterns are given to B<greple>, it normally prints only
+the lines that match all of the patterns.  However, for the purposes
+of this module, it is desirable to display lines that match any of
+them, so the C<--need=1> option is specified by default.
+
+If multiple patterns are specified, the strings matching each pattern
+will be displayed in a different color.
+
+=over 7
+
+=item B<--composite>
+
+Search for composite characters (combining character sequence)
+composed of base and combining characters.
+
+=item B<--precomposed>
+
+Search for precomposed characters (C<\p{Dt=Canonical}>).
+
+=item B<--combind>
+
+Find both B<composite> and B<precomposed> characters.
+
+=item B<--dt>=I<type>, B<--decomposition-type>=I<type>
+
+Specifies the C<Decomposition_Type>.  It can take three values:
+C<Canonical>, C<Non_Canonical> (C<NonCanon>), or C<None>.
+
+=back
 
 =head1 MODULE OPTIONS
 
@@ -195,18 +248,21 @@ Kazumasa Utashiro
 
 =cut
 
-use Getopt::EX::Config qw(config);
+use Getopt::EX::Config;
 use Hash::Util qw(lock_keys);
+use Data::Dumper;
 
 use App::Greple::annotate;
 
-my $config = Getopt::EX::Config->new(
-    column => 1,
-    char   => 0,
-    width  => 0,
-    code   => 1,
-    name   => 1,
-    align  => \$App::Greple::annotate::config->{align},
+our $opt_annotate = 0;
+
+our $config = Getopt::EX::Config->new(
+    column   => 1,
+    char     => 0,
+    width    => 0,
+    code     => 1,
+    name     => 1,
+    align    => \$App::Greple::annotate::config->{align},
 );
 my %type = ( align => '=i', '*' => '!' );
 lock_keys %{$config};
@@ -226,7 +282,6 @@ sub finalize {
 }
 
 use Unicode::UCD qw(charinfo);
-use Data::Dumper;
 
 sub charname {
     local $_ = @_ ? shift : $_;
@@ -268,10 +323,51 @@ sub annotate {
     $annon;
 }
 
+#
+# Match with \X and then postgrep to remove any areas that are not
+# composed of multiple characters.  If you can write it in a regular
+# expression, that's better.
+#
+sub select_combined {
+    my $grep = shift;
+    for my $r ($grep->result) {
+	my($b, @match) = @$r;
+	my $matched = int @match;
+	if (@match = grep { ($_->[1] - $_->[0]) > 1 } @match) {
+	    @$r = ($b, @match);
+	} else {
+	    @$r = ();
+	}
+    }
+}
+
 $App::Greple::annotate::ANNOTATE = \&annotate;
 
 1;
 
 __DATA__
 
-option default -Mannotate --separate --uniqcolor
+option --load-annotate -Mannotate
+
+option default \
+    --need=1 \
+    --fs=once --ls=separate $<move> --load-annotate
+
+option --select-combined \
+    -E '\X' \
+    --postgrep '&__PACKAGE__::select_combined'
+
+define \p{CombinedChar} \p{Format}\p{Mark}
+define \p{Combined}     [\p{CombinedChar}]
+define \p{Base}         [^\p{CombinedChar}]
+
+option --composite -GE '(\p{Base})(\p{Combined}+)'
+
+option --decomposition-type -E '\p{Decomposition_Type=$<shift>}'
+option --dt --decomposition-type
+
+option --precomposed --decomposition-type=Canonical
+option --noncanon    --decomposition-type=NonCanon
+
+option --combined \
+    --precomposed --composite

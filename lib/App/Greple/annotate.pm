@@ -36,6 +36,17 @@ to display annotation for each matched text in the following style.
 <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/ka-ko.png">
 </p>
 
+=head1 COMMAND OPTIONS
+
+=over 7
+
+=item B<--annotate>, B<--no-annotate>
+
+Print annotation or not.  Enabled by default, so use C<--no-annotate>
+to disable it.
+
+=back
+
 =head1 MODULE OPTIONS
 
 =over 7
@@ -122,10 +133,11 @@ Kazumasa Utashiro
 
 =cut
 
-use Getopt::EX::Config qw(config);
+use Getopt::EX::Config;
 use Hash::Util qw(lock_keys);
 
 our $config = Getopt::EX::Config->new(
+    annotate => \(our $opt_annotate = 1),
     align => 1,
 );
 my %type = ( align => '=i', '*' => '!' );
@@ -219,6 +231,7 @@ sub prepare {
 }
 
 sub annotate {
+    config('annotate') or return;
     our @annotation;
     say shift(@annotation) if @annotation > 0;
     undef;
@@ -227,6 +240,8 @@ sub annotate {
 1;
 
 __DATA__
+
+builtin annotate! $opt_annotate
 
 option default \
     --postgrep '&__PACKAGE__::prepare' \

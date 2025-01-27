@@ -3,13 +3,26 @@
 
 App::Greple::charcode - greple module to annotate unicode character data
 
+<div>
+    <p>
+    <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
+    </p>
+</div>
+
 # SYNOPSIS
 
 **greple** **-Mcharcode** ...
 
-**greple** **-Mcharcode** \[ _module option_ \] -- \[ _greple option_ \] ...
+**greple** **-Mcharcode** \[ _module option_ \] -- \[ _command option_ \] ...
 
-    MODULE OPTIONS
+    COMMAND OPTION
+      --no-annotate do not print annotation
+      --composite   find composite character (combining character sequence)
+      --precomposed find precomposed character
+      --combind     find both composite and precomposed characters
+      --dt=type     specify decomposition type
+
+    MODULE OPTION
       --[no-]column display column number
       --[no-]char   display character itself
       --[no-]width  display width
@@ -66,6 +79,44 @@ character.  This module allows you to see how it is done.
     <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/ka-ko.png">
     </p>
 </div>
+
+# COMMAND OPTIONS
+
+- **--annotate**, **--no-annotate**
+
+    Print annotation or not.  Enabled by default, so use `--no-annotate`
+    to disable it.
+
+## CHARACTER CODE OPTIONS
+
+The following options are used to search for Unicode combining
+characters.
+
+If multiple patterns are given to **greple**, it normally prints only
+the lines that match all of the patterns.  However, for the purposes
+of this module, it is desirable to display lines that match any of
+them, so the `--need=1` option is specified by default.
+
+If multiple patterns are specified, the strings matching each pattern
+will be displayed in a different color.
+
+- **--composite**
+
+    Search for composite characters (combining character sequence)
+    composed of base and combining characters.
+
+- **--precomposed**
+
+    Search for precomposed characters (`\p{Dt=Canonical}`).
+
+- **--combind**
+
+    Find both **composite** and **precomposed** characters.
+
+- **--dt**=_type_, **--decomposition-type**=_type_
+
+    Specifies the `Decomposition_Type`.  It can take three values:
+    `Canonical`, `Non_Canonical` (`NonCanon`), or `None`.
 
 # MODULE OPTIONS
 
