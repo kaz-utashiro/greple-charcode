@@ -153,6 +153,10 @@ ECMA-48.  Pattern is defined as this.
         [\x40-\x7e]       # final byte
     EOL
 
+=for html <p>
+<img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/ansicode.png">
+</p>
+
 =back
 
 =head1 MODULE OPTIONS

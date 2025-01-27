@@ -142,6 +142,12 @@ will be displayed in a different color.
             [\x40-\x7e]       # final byte
         EOL
 
+    <div>
+            <p>
+            <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/ansicode.png">
+            </p>
+    </div>
+
 # MODULE OPTIONS
 
 - **--**\[**no-**\]**column**
