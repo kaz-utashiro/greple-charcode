@@ -393,24 +393,6 @@ sub annotate {
     $annon;
 }
 
-#
-# Match with \X and then postgrep to remove any areas that are not
-# composed of multiple characters.  If you can write it in a regular
-# expression, that's better.
-#
-sub select_combined {
-    my $grep = shift;
-    for my $r ($grep->result) {
-	my($b, @match) = @$r;
-	my $matched = int @match;
-	if (@match = grep { ($_->[1] - $_->[0]) > 1 } @match) {
-	    @$r = ($b, @match);
-	} else {
-	    @$r = ();
-	}
-    }
-}
-
 $App::Greple::annotate::ANNOTATE = \&annotate;
 
 1;
@@ -422,10 +404,6 @@ option --load-annotate -Mannotate
 option default \
     --need=1 \
     --fs=once --ls=separate $<move> --load-annotate
-
-option --select-combined \
-    -E '\X' \
-    --postgrep '&__PACKAGE__::select_combined'
 
 define \p{CombinedChar} \p{Format}\p{Mark}
 define \p{Combined}     [\p{CombinedChar}]
