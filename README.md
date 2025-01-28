@@ -45,7 +45,7 @@ Version 0.9902
 `App::Greple::charcode` displays Unicode information about the
 matched characters.  It can also visualize zero-width combining or
 hidden characters, which can be useful for examining text containing
-such characters.
+visually indistinguishable or imperceptible elements.
 
 The following output, retrieved from this document for non-ASCII
 characters (`\P{ASCII}`), shows that the character `\N{VARIATION
@@ -238,7 +238,6 @@ Module-specific options are specified between `-Mcharcode` and `--`.
 - **visible**
 
     (default 0)
-
     Display invisible characters in a visible string representation.
 
 - **align**=_column_

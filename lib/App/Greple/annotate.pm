@@ -57,7 +57,7 @@ Align annotation messages.  Defaults to C<1>, which aligns to the
 rightmost column; C<0> means no align; if a value of C<2> or greater
 is given, it aligns to that numbered column.
 
-=item B<--split>, $B<--no-split>
+=item B<--split>, B<--no-split>
 
 If a pattern matching multiple characters is given, annotate each
 character independently.
@@ -140,6 +140,7 @@ Kazumasa Utashiro
 
 use Getopt::EX::Config;
 use Hash::Util qw(lock_keys);
+use Data::Dumper;
 
 our $config = Getopt::EX::Config->new(
     annotate => \(our $opt_annotate = 1),
@@ -203,8 +204,8 @@ package Local::Annon::List {
     }
     sub shift {
 	my $obj = CORE::shift;
-	my $count = CORE::shift @{$obj->count};
-        splice @{$obj->annotation}, 0, $count
+	my $count = CORE::shift @{$obj->count} or return ();
+	splice @{$obj->annotation}, 0, $count;
     }
     sub join {
 	my $obj = CORE::shift;
@@ -215,11 +216,15 @@ package Local::Annon::List {
     }
     sub total {
 	my $obj = CORE::shift;
-        List::Util::sum @{$obj->count} // 0;
+        List::Util::sum(@{$obj->count}) // 0;
     }
     sub last {
 	my $obj = CORE::shift;
         $obj->annotation->[-1];
+    }
+    sub max {
+	my $obj = CORE::shift;
+        List::Util::max map { $_->end } @{$obj->annotation};
     }
 }
 
@@ -232,6 +237,7 @@ our $ANNOTATE //= sub {
 };
 
 sub prepare {
+    config('annotate') or return;
     my $grep = shift;
     for my $r ($grep->result) {
 	my($b, @match) = @$r;
@@ -262,19 +268,19 @@ sub prepare {
 			substr($indent, $start) = '';
 		    }
 		}
-		my $sub = sub {
-		    my($head, $match) = @_;
-		    sprintf("%s%s─ %s", $indent, $head,
-			    $ANNOTATE->(column => $start, match => $match));
-		};
 		$current->push( do {
+		    my $sub = sub {
+			my($head, $match) = @_;
+			sprintf("%s%s─ %s", $indent, $head,
+				$ANNOTATE->(column => $start, match => $match));
+		    };
 		    if ($config->{split}) {
 			map {
 			    my $out = $sub->($head, $_);
 			    $head = '├';
 			    Local::Annon->new($start, $end, $out);
 			}
-			$slice =~ /./g;
+			$slice =~ /./sg;
 		    } else {
 			Local::Annon->new($start, $end, $sub->($head, $slice));
 		    }
@@ -284,22 +290,26 @@ sub prepare {
 	    $progress .= $slice;
 	    $start = $end;
 	}
-	$current->count or next;
-	if ((my $align = $config->{align}) and (my $max_pos = $current->last->[0])) {
-	    $max_pos = $align if $align > 1;
-	    for (@{$current->annotation}) {
-		if ((my $extend = $max_pos - $_->[0]) > 0) {
-		    $_->annon =~ s/(?=([─]))/$1 x $extend/e;
-		}
-	    }
+	@{$current->count} == 0 and next;
+	if ((my $align = $config->{align}) and $current->total) {
+	    align($current,
+		  $align > 1 ? $align : $current->last->[0]);
 	}
 	$annotation->join($current);
     }
 }
 
+sub align {
+    my($list, $pos) = @_;
+    for (@{$list->annotation}) {
+	if ((my $extend = $pos - $_->[0]) > 0) {
+	    $_->annon =~ s/(?=([─]))/$1 x $extend/e;
+	}
+    }
+}
+
 sub annotate {
     config('annotate') or return;
-    use Data::Dumper;
     if (my @annon = $annotation->shift) {
 	say $_->annon for @annon;
     }

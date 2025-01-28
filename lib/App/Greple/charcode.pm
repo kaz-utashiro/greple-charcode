@@ -52,7 +52,7 @@ Version 0.9902
 C<App::Greple::charcode> displays Unicode information about the
 matched characters.  It can also visualize zero-width combining or
 hidden characters, which can be useful for examining text containing
-such characters.
+visually indistinguishable or imperceptible elements.
 
 The following output, retrieved from this document for non-ASCII
 characters (C<\P{ASCII}>), shows that the character C<\N{VARIATION
@@ -255,7 +255,6 @@ Show the Unicode name of the character.
 =item B<visible>
 
 (default 0)
-
 Display invisible characters in a visible string representation.
 
 =item B<align>=I<column>
@@ -302,8 +301,8 @@ our $config = Getopt::EX::Config->new(
     column   => 1,
     char     => 0,
     width    => 0,
-    visible  => 0,
-    code     => 1,
+    visible  => 1,
+    code     => 0,
     name     => 1,
     align    => \$App::Greple::annotate::config->{align},
     split    => \$App::Greple::annotate::config->{split},
@@ -432,7 +431,7 @@ define \p{CombinedChar} \p{Format}\p{Mark}
 define \p{Combined}     [\p{CombinedChar}]
 define \p{Base}         [^\p{CombinedChar}]
 
-option --composite -GE '(\p{Base})(\p{Combined}+)'
+option --composite -E '(\p{Base})(\p{Combined}+)'
 
 option --decomposition-type -E '\p{Decomposition_Type=$<shift>}'
 option --dt --decomposition-type
@@ -443,19 +442,19 @@ option --noncanon    --decomposition-type=NonCanon
 option --combined \
     --precomposed --composite
 
-define ECMA-CSI <<EOL
-    (?x)
-    # see ECMA-48 5.4 Control sequences
-    (?: \e\[ | \x9b )	# csi
+define ANSI-CSI <<EOL
+    (?xn)
+    # see ANSI-48 5.4 Control sequences
+    ( \e\[ | \x9b )	# csi
     [\x30-\x3f]*	# parameter bytes
     [\x20-\x2f]*	# intermediate bytes
     [\x40-\x7e]		# final byte
 EOL
 
-define ECMA-RESET <<EOL
-    (?x)
-    (?: (?: \e\[ | \x9b ) [0;]* m )+
-    (?: (?: \e\[ | \x9b ) [0;]* K )*
+define ANSI-RESET <<EOL
+    (?xn)
+    ( ( \e\[ | \x9b ) [0;]* m )+
+    ( ( \e\[ | \x9b ) [0;]* K )*
 EOL
 
 expand --visible-option \
@@ -463,13 +462,10 @@ expand --visible-option \
     --cm=N
 
 option --ansicode \
-    --visible-option \
-    -E '(?:ECMA-RESET)+|(?:ECMA-CSI)'
+    --visible-option -E '(?:ANSI-RESET)+|(?:ANSI-CSI)'
 
 option --ansicode-each \
-    --visible-option \
-    -E ECMA-CSI
+    --visible-option -E ANSI-CSI
 
 option --ansicode-seq \
-    --visible-option \
-    -E '(?:ECMA-CSI)+'
+    --visible-option -E '(?:ANSI-CSI)+'
