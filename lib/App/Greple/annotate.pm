@@ -57,6 +57,10 @@ Align annotation messages.  Defaults to C<1>, which aligns to the
 rightmost column; C<0> means no align; if a value of C<2> or greater
 is given, it aligns to that numbered column.
 
+I<column> can be negative; if C<-1> is specified, align to the same
+column for all lines.  If C<-2> is specified, align to the longest
+line length, regardless of match position.
+
 =item B<--split>, B<--no-split>
 
 If a pattern matching multiple characters is given, annotate each
@@ -222,10 +226,42 @@ package Local::Annon::List {
 	my $obj = CORE::shift;
         $obj->annotation->[-1];
     }
-    sub max {
+    sub maxpos {
 	my $obj = CORE::shift;
         List::Util::max map { $_->end } @{$obj->annotation};
     }
+}
+
+sub code {
+    state $format = [ qw(\x{%02x} \x{%04x}) ];
+    my $ord = ord($_[0]);
+    sprintf($format->[$ord > 0xff], $ord);
+}
+
+my %cmap = (
+    "\t" => '\t',
+    "\n" => '\n',
+    "\r" => '\r',
+    "\f" => '\f',
+    "\b" => '\b',
+    "\a" => '\a',
+    "\e" => '\e',
+);
+
+sub control {
+    local $_ = @_ ? shift : $_;
+    if (s/\A([\t\n\r\f\b\a\e])/$cmap{$1}/e) {
+	$_;
+    } elsif (s/\A([\x00-\x1f])/sprintf "\\c%c", ord($1)+0x40/e) {
+	$_;
+    } else {
+	code($_);
+    }
+}
+
+sub visible {
+    local $_ = @_ ? shift : $_;
+    s{([^\pL\pN\pP\pS])}{control($1)}ger;
 }
 
 my $annotation = Local::Annon::List->new;
@@ -233,7 +269,7 @@ my $annotation = Local::Annon::List->new;
 our $ANNOTATE //= sub {
     my %param = @_;
     my($column, $str) = @param{qw(column match)};
-    sprintf("%3d %s", $column, $str);
+    sprintf("%3d %s", $column, visible($str));
 };
 
 sub prepare {
@@ -269,20 +305,20 @@ sub prepare {
 		    }
 		}
 		$current->push( do {
-		    my $sub = sub {
+		    my $maker = sub {
 			my($head, $match) = @_;
 			sprintf("%s%s─ %s", $indent, $head,
 				$ANNOTATE->(column => $start, match => $match));
 		    };
 		    if ($config->{split}) {
 			map {
-			    my $out = $sub->($head, $_);
+			    my $out = $maker->($head, $_);
 			    $head = '├';
 			    Local::Annon->new($start, $end, $out);
 			}
 			$slice =~ /./sg;
 		    } else {
-			Local::Annon->new($start, $end, $sub->($head, $slice));
+			Local::Annon->new($start, $end, $maker->($head, $slice));
 		    }
 		} );
 	    }
@@ -291,11 +327,21 @@ sub prepare {
 	    $start = $end;
 	}
 	@{$current->count} == 0 and next;
-	if ((my $align = $config->{align}) and $current->total) {
+	my $align = $config->{align};
+	if ($align > 0 and $current->total > 0) {
 	    align($current,
 		  $align > 1 ? $align : $current->last->[0]);
 	}
 	$annotation->join($current);
+    }
+    if ($config->{align} == -1) {
+	align($annotation, $annotation->maxpos);
+    }
+    elsif ($config->{align} == -2) {
+	my $maxlen = List::Util::max(
+	    map { vwidth($grep->cut($_->[0]->@*)) } $grep->result
+	);
+	align($annotation, $maxlen - 1);
     }
 }
 

@@ -197,6 +197,10 @@ Align annotation messages.  Defaults to C<1>, which aligns to the
 rightmost column; C<0> means no align; if a value of C<2> or greater
 is given, it aligns to that numbered column.
 
+I<column> can be negative; if C<-1> is specified, align to the same
+column for all lines.  If C<-2> is specified, align to the longest
+line length, regardless of match position.
+
 =item B<-->[B<no->]B<split>
 
 If a pattern matching multiple characters is given, annotate each

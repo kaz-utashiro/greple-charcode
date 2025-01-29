@@ -184,6 +184,10 @@ will be displayed in a different color.
     rightmost column; `0` means no align; if a value of `2` or greater
     is given, it aligns to that numbered column.
 
+    _column_ can be negative; if `-1` is specified, align to the same
+    column for all lines.  If `-2` is specified, align to the longest
+    line length, regardless of match position.
+
 - **--**\[**no-**\]**split**
 
     If a pattern matching multiple characters is given, annotate each
