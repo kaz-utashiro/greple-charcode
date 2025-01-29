@@ -424,6 +424,9 @@ option --noncanon    --decomposition-type=NonCanon
 option --combined \
     --precomposed --composite
 
+option --outstand \
+    --combined -E '(?=\P{ASCII})\X'
+
 define ANSI-CSI <<EOL
     (?xn)
     # see ANSI-48 5.4 Control sequences

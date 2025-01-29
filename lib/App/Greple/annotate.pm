@@ -283,7 +283,10 @@ sub prepare {
 	my $indent = '';
 	my $current = Local::Annon::List->new;
 	while (my($i, $slice) = each @slice) {
-	    next if $slice eq '';
+	    if ($slice eq '') {
+		$current->push() if $i % 2;
+		next;
+	    }
 	    my $end = vwidth($progress . $slice);
 	    my $gap = $end - $start;
 	    my $indent_mark = '';
