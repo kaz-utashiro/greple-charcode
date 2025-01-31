@@ -454,3 +454,6 @@ option --ansicode-each \
 
 option --ansicode-seq \
     --visible-option -E '(?:ANSI-CSI)+'
+
+option --charcode::config --prologue &__PACKAGE__::config($<shift>)
+option --config --charcode::config
