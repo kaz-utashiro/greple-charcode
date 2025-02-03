@@ -231,7 +231,7 @@ package Local::Annon::List {
     }
     sub maxpos {
 	my $obj = CORE::shift;
-        List::Util::max map { $_->end } @{$obj->annotation};
+        List::Util::max map { $_->end - 1 } @{$obj->annotation};
     }
 }
 

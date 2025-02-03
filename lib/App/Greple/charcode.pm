@@ -409,6 +409,11 @@ option default \
     --need=1 \
     --fs=once --ls=separate $<move> --load-annotate
 
+option --charcode::config \
+    --prologue &__PACKAGE__::config($<shift>)
+
+option --config --charcode::config
+
 define \p{CombinedChar} \p{Format}\p{Mark}
 define \p{Combined}     [\p{CombinedChar}]
 define \p{Base}         [^\p{CombinedChar}]
@@ -443,7 +448,7 @@ define ANSI-RESET <<EOL
 EOL
 
 expand --visible-option \
-    -Mcharcode --config code=0,name=0,visible=1 -- \
+    --charcode::config code=0,name=0,visible=1 \
     --cm=N
 
 option --ansicode \
@@ -455,5 +460,6 @@ option --ansicode-each \
 option --ansicode-seq \
     --visible-option -E '(?:ANSI-CSI)+'
 
-option --charcode::config --prologue &__PACKAGE__::config($<shift>)
-option --config --charcode::config
+option --align         --charcode::config align=$<shift>
+option --align-all     --charcode::config align=-1
+option --align-outside --charcode::config align=-2
