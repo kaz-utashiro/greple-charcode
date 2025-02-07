@@ -38,7 +38,7 @@ B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<command option> ] ...
     --[no-]name    display character name
     --[no-]visible display character name
     --[no-]split   put annotattion for each character
-    --align=#      align annotation
+    --alignto=#    align annotation to #
 
     --config KEY[=VALUE],...
              (KEY: column char width code name visible align)
@@ -191,7 +191,7 @@ Default B<true>.
 Display invisible characters in a visible string representation.
 Default False.
 
-=item B<--align>=I<column>
+=item B<--alignto>=I<column>
 
 Align annotation messages.  Defaults to C<1>, which aligns to the
 rightmost column; C<0> means no align; if a value of C<2> or greater
@@ -261,7 +261,7 @@ Show the Unicode name of the character.
 (default 0)
 Display invisible characters in a visible string representation.
 
-=item B<align>=I<column>
+=item B<alignto>=I<column>
 
 (default 1)
 Align the description on the same column.
@@ -302,16 +302,16 @@ use App::Greple::annotate;
 our $opt_annotate = 0;
 
 our $config = Getopt::EX::Config->new(
-    column   => 1,
-    char     => 0,
-    width    => 0,
-    visible  => 1,
-    code     => 0,
-    name     => 1,
-    align    => \$App::Greple::annotate::config->{align},
-    split    => \$App::Greple::annotate::config->{split},
+    column  => 1,
+    char    => 0,
+    width   => 0,
+    visible => 1,
+    code    => 0,
+    name    => 1,
+    alignto => \$App::Greple::annotate::config->{alignto},
+    split   => \$App::Greple::annotate::config->{split},
 );
-my %type = ( align => '=i', '*' => '!' );
+my %type = ( alignto => '=i', '*' => '!' );
 lock_keys %{$config};
 
 sub finalize {
@@ -403,11 +403,10 @@ $App::Greple::annotate::ANNOTATE = \&annotate;
 
 __DATA__
 
-option --load-annotate -Mannotate
-
 option default \
+    -Mannotate \
     --need=1 \
-    --fs=once --ls=separate $<move> --load-annotate
+    --fs=once --ls=separate $<move>
 
 option --charcode::config \
     --prologue &__PACKAGE__::config($<shift>)
@@ -436,8 +435,8 @@ define ANSI-CSI <<EOL
     (?xn)
     # see ANSI-48 5.4 Control sequences
     ( \e\[ | \x9b )	# csi
-    [\x30-\x3f]*	# parameter bytes
-    [\x20-\x2f]*	# intermediate bytes
+    [\x30-\x3f]*+	# parameter bytes
+    [\x20-\x2f]*+	# intermediate bytes
     [\x40-\x7e]		# final byte
 EOL
 
@@ -459,7 +458,3 @@ option --ansicode-each \
 
 option --ansicode-seq \
     --visible-option -E '(?:ANSI-CSI)+'
-
-option --align         --charcode::config align=$<shift>
-option --align-all     --charcode::config align=-1
-option --align-outside --charcode::config align=-2

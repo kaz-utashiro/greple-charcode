@@ -31,7 +31,7 @@ App::Greple::charcode - greple module to annotate unicode character data
       --[no-]name    display character name
       --[no-]visible display character name
       --[no-]split   put annotattion for each character
-      --align=#      align annotation
+      --alignto=#    align annotation to #
 
       --config KEY[=VALUE],...
                (KEY: column char width code name visible align)
@@ -178,7 +178,7 @@ will be displayed in a different color.
     Display invisible characters in a visible string representation.
     Default False.
 
-- **--align**=_column_
+- **--alignto**=_column_
 
     Align annotation messages.  Defaults to `1`, which aligns to the
     rightmost column; `0` means no align; if a value of `2` or greater
@@ -244,7 +244,7 @@ Module-specific options are specified between `-Mcharcode` and `--`.
     (default 0)
     Display invisible characters in a visible string representation.
 
-- **align**=_column_
+- **alignto**=_column_
 
     (default 1)
     Align the description on the same column.
