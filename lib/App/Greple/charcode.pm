@@ -24,10 +24,20 @@ B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<command option> ] ...
 
   COMMAND OPTION
     --no-annotate  do not print annotation
+    --[no-]align   align annotations
+    --align-all    align to the same column for all lines
+    --align-side   align to the longest line
+
+  UNICODE
     --composite    find composite character (combining character sequence)
     --precomposed  find precomposed character
-    --combind      find both composite and precomposed characters
+    --combined     find both composite and precomposed characters
     --dt=type      specify decomposition type
+    --surrogate    find character in UTF-16 surrogate pair range
+    --outstand     find non-ASCII combining characters
+    -p/-P prop     find \p{prop} or \P{prop} characters
+
+  ANSI
     --ansicode     find ANSI terminal control sequences
 
   MODULE OPTION
@@ -98,12 +108,22 @@ character.  This module allows you to see how it is done.
 Print annotation or not.  Enabled by default, so use C<--no-annotate>
 to disable it.
 
+=item B<-->[B<no->]B<align>
+
+Align annotation or not.
+Default true.
+
+=item B<--align-all>
+
+Align to the same column for all lines
+
+=item B<--align-side>
+
+Align to the longest line length, regardless of match position.
+
 =back
 
-=head2 CHARACTER CODE OPTIONS
-
-The following options are used to search for Unicode combining
-characters.
+=head1 PATTERN OPTIONS
 
 If multiple patterns are given to B<greple>, it normally prints only
 the lines that match all of the patterns.  However, for the purposes
@@ -124,7 +144,7 @@ composed of base and combining characters.
 
 Search for precomposed characters (C<\p{Dt=Canonical}>).
 
-=item B<--combind>
+=item B<--combined>
 
 Find both B<composite> and B<precomposed> characters.
 
@@ -132,6 +152,23 @@ Find both B<composite> and B<precomposed> characters.
 
 Specifies the C<Decomposition_Type>.  It can take three values:
 C<Canonical>, C<Non_Canonical> (C<NonCanon>), or C<None>.
+
+=item B<--outstand>
+
+Matches outstanding characters, those are non-ASCII combining
+characters.
+
+=item B<--surrogate>
+
+Matches to characters in UTF-16 surragate pair range (U+10000 to
+U+10FFFF).
+
+=item B<-p> I<prop>, B<-P> I<prop>
+
+Short cut for C<-E '\p{prop}'> and  C<-E '\P{prop}'>.
+
+You will not be able to use greple's C<-p> option, but it probably
+won't be a problem.  If you must use it, use C<--pargraph>.
 
 =item B<--ansicode>
 
@@ -142,14 +179,12 @@ disabled too.
 To be precise, it searches for CSI Control sequences defined in
 ECMA-48.  Pattern is defined as this.
 
-    define ECMA-CSI <<EOL
-        (?x)
-        # see ECMA-48 5.4 Control sequences
-        (?: \e\[ | \x9b ) # csi
-        [\x30-\x3f]*      # parameter bytes
-        [\x20-\x2f]*      # intermediate bytes
-        [\x40-\x7e]       # final byte
-    EOL
+    (?x)
+    # see ECMA-48 5.4 Control sequences
+    (?: \e\[ | \x9b ) # csi
+    [\x30-\x3f]*      # parameter bytes
+    [\x20-\x2f]*      # intermediate bytes
+    [\x40-\x7e]       # final byte
 
 =for html <p>
 <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/ansicode.png">
@@ -157,39 +192,65 @@ ECMA-48.  Pattern is defined as this.
 
 =back
 
-=head1 MODULE OPTIONS
+=head1 MODULE OPTIONS and PARAMS
+
+Module-specific options are specified between C<-Mcharcode> and C<-->.
+
+    greple -Mcharcode --config width,name=0 -- ...
+
+Parameters can be set in two ways, one using the C<--config> option
+and the other using dedicated options.  See the L</CONFIGURATION>
+section for more information.
 
 =over 7
+
+=item B<--config>=I<params>
+
+Set configuration parameters.
+
+=item B<column>
 
 =item B<-->[B<no->]B<column>
 
 Show column number.
-Default B<true>.
+Default C<1>.
+
+=item B<char>
 
 =item B<-->[B<no->]B<char>
 
 Show the character itself.
-Default B<false>.
+Default C<0>.
+
+=item B<width>
 
 =item B<-->[B<no->]B<width>
 
 Show the width.
-Default B<false>.
+Default C<0>.
+
+=item B<code>
 
 =item B<-->[B<no->]B<code>
 
 Show the character code in hex.
-Default B<true>.
+Default C<1>.
+
+=item B<name>
 
 =item B<-->[B<no->]B<name>
 
 Show the Unicode name of the character.
-Default B<true>.
+Default C<1>.
+
+=item B<visible>
 
 =item B<-->[B<no->]B<visible>
 
 Display invisible characters in a visible string representation.
-Default False.
+Default C<0>.
+
+=item B<alignto>=I<column>
 
 =item B<--alignto>=I<column>
 
@@ -200,6 +261,8 @@ is given, it aligns to that numbered column.
 I<column> can be negative; if C<-1> is specified, align to the same
 column for all lines.  If C<-2> is specified, align to the longest
 line length, regardless of match position.
+
+=item B<split>
 
 =item B<-->[B<no->]B<split>
 
@@ -217,56 +280,24 @@ Configuration parameters can be set in several ways.
 The start function of a module can be specified at the same time as
 the module declaration.
 
-    greple -Mcharcode::config(width,name=0)
+    greple -Mannotate::config(alignto=0)
 
-    greple -Mcharcode::config=width,name=0
+    greple -Mannotate::config=alignto=80
 
 =head2 PRIVATE MODULE OPTION
 
-Module-specific options are specified between C<-Mcharcode> and C<-->.
+Module-specific options are specified between C<-Mannotate> and C<-->.
 
-    greple -Mcharcode --config width,name=0 -- ...
+    greple -Mannotate --config alignto=80 -- ...
 
-=head1 CONFIGURATION PARAMETERS
+    greple -Mannotate --alignto=80 -- ...
 
-=over 7
+=head2 GENERIC MODULE OPTION
 
-=item B<column>
+Module-specific C<---config> option can be called by normal command
+line option C<--annotate::config>.
 
-(default 1)
-Show column number.
-
-=item B<char>
-
-(default 0)
-Show the character itself.
-
-=item B<width>
-
-(default 0)
-Show the width.
-
-=item B<code>
-
-(default 1)
-Show the character code in hex.
-
-=item B<name>
-
-(default 1)
-Show the Unicode name of the character.
-
-=item B<visible>
-
-(default 0)
-Display invisible characters in a visible string representation.
-
-=item B<alignto>=I<column>
-
-(default 1)
-Align the description on the same column.
-
-=back
+    greple -Mannotate --annotate::config alignto=80 ...
 
 =head1 INSTALL
 
@@ -413,13 +444,15 @@ option --charcode::config \
 
 option --config --charcode::config
 
+option --surrogate -E '[\N{U+10000}-\N{U+10FFFF}]'
+
 define \p{CombinedChar} \p{Format}\p{Mark}
 define \p{Combined}     [\p{CombinedChar}]
 define \p{Base}         [^\p{CombinedChar}]
 
-option --composite -E '(\p{Base})(\p{Combined}+)'
+option --composite -E '(?#composite)(\p{Base})(\p{Combined}+)'
 
-option --decomposition-type -E '\p{Decomposition_Type=$<shift>}'
+option --decomposition-type -E '(?#canonical)\p{Decomposition_Type=$<shift>}'
 option --dt --decomposition-type
 
 option --precomposed --decomposition-type=Canonical
@@ -429,7 +462,7 @@ option --combined \
     --precomposed --composite
 
 option --outstand \
-    --combined -E '(?=\P{ASCII})\X'
+    --combined -E '(?#outstand)(?=\P{ASCII})\X'
 
 define ANSI-CSI <<EOL
     (?xn)
@@ -451,10 +484,13 @@ expand --visible-option \
     --cm=N
 
 option --ansicode \
-    --visible-option -E '(?:ANSI-RESET)+|(?:ANSI-CSI)'
+    --visible-option -E '(?#ansicode)(?:ANSI-RESET)+|(?:ANSI-CSI)'
 
 option --ansicode-each \
     --visible-option -E ANSI-CSI
 
 option --ansicode-seq \
     --visible-option -E '(?:ANSI-CSI)+'
+
+option -p -E '\p{$<shift>}'
+option -P -E '\P{$<shift>}'

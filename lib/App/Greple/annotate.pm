@@ -129,7 +129,7 @@ line option C<--annotate::config>.
 
 =head1 INSTALL
 
-cpanm -n B<App::Greple::annotate>
+    cpanm -n B<App::Greple::annotate>
 
 =head1 SEE ALSO
 
@@ -400,8 +400,9 @@ option --annotate::config \
 
 option --config --annotate::config
 
-option --split         --annotate::config split=1
-option --alignto       --annotate::config alignto=$<shift>
-option --align         --annotate::config alignto=1
-option --align-all     --annotate::config alignto=-1
-option --align-outside --annotate::config alignto=-2
+option --split      --annotate::config split=1
+option --alignto    --annotate::config alignto=$<shift>
+option --align      --annotate::config alignto=1
+option --no-align   --annotate::config alignto=0
+option --align-all  --annotate::config alignto=-1
+option --align-side --annotate::config alignto=-2
