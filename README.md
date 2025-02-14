@@ -5,52 +5,52 @@ App::Greple::charcode - greple module to annotate unicode character data
 
 <div>
     <p>
-    <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
+    <img width="425" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
     </p>
 </div>
 
 # SYNOPSIS
 
-**greple** **-Mcharcode** ...
+    greple -Mcharcode ...
+    greple -Mcharcode [ module option ] -- [ command option ] ...
 
-**greple** **-Mcharcode** \[ _module option_ \] -- \[ _command option_ \] ...
+      COMMAND OPTION
+        --no-annotate  do not print annotation
+        --[no-]align   align annotations
+        --align-all    align to the same column for all lines
+        --align-side   align to the longest line
 
-    COMMAND OPTION
-      --no-annotate  do not print annotation
-      --[no-]align   align annotations
-      --align-all    align to the same column for all lines
-      --align-side   align to the longest line
+      UNICODE
+        --composite    find composite character (combining character sequence)
+        --precomposed  find precomposed character
+        --combined     find both composite and precomposed characters
+        --dt=type      specify decomposition type
+        --surrogate    find character in UTF-16 surrogate pair range
+        --outstand     find non-ASCII combining characters
+        -p/-P prop     find \p{prop} or \P{prop} characters
 
-    UNICODE
-      --composite    find composite character (combining character sequence)
-      --precomposed  find precomposed character
-      --combined     find both composite and precomposed characters
-      --dt=type      specify decomposition type
-      --surrogate    find character in UTF-16 surrogate pair range
-      --outstand     find non-ASCII combining characters
-      -p/-P prop     find \p{prop} or \P{prop} characters
+      ANSI
+        --ansicode     find ANSI terminal control sequences
 
-    ANSI
-      --ansicode     find ANSI terminal control sequences
+      MODULE OPTION
+        --[no-]column  display column number
+        --[no-]visible display character name
+        --[no-]char    display character itself
+        --[no-]width   display width
+        --[no-]utf8    display UTF-8 encoding
+        --[no-]utf16   display UTF-16 encoding
+        --[no-]code    display unicode code point
+        --[no-]name    display character name
+        --[no-]split   put annotattion for each character
+        --alignto=#    align annotation to #
 
-    MODULE OPTION
-      --[no-]column  display column number
-      --[no-]char    display character itself
-      --[no-]width   display width
-      --[no-]code    display character code
-      --[no-]name    display character name
-      --[no-]visible display character name
-      --[no-]split   put annotattion for each character
-      --alignto=#    align annotation to #
+        --config KEY[=VALUE],...
+                 (KEY: column char width code name visible align)
 
-      --config KEY[=VALUE],...
-               (KEY: column char width code name visible align)
+    greple -Mcc ...
+    greple -Mcc [ module option ] -- [ command option ] ...
 
-**greple** **-Mcc** ...
-
-**greple** **-Mcc** \[ _module option_ \] -- \[ _command option_ \] ...
-
-    -Mcc           alias module for -Mcharcode
+        -Mcc  alias module for -Mcharcode
 
 # VERSION
 
@@ -208,6 +208,12 @@ section for more information.
     Show column number.
     Default `1`.
 
+- **visible**
+- **--**\[**no-**\]**visible**
+
+    Display invisible characters in a visible string representation.
+    Default `0`.
+
 - **char**
 - **--**\[**no-**\]**char**
 
@@ -220,10 +226,22 @@ section for more information.
     Show the width.
     Default `0`.
 
+- **utf8**
+- **--**\[**no-**\]**utf8**
+
+    Show the UTF-8 encoding in hex.
+    Default `0`.
+
+- **utf16**
+- **--**\[**no-**\]**utf16**
+
+    Show the UTF-16 encoding in hex.
+    Default `0`.
+
 - **code**
 - **--**\[**no-**\]**code**
 
-    Show the character code in hex.
+    Show the character code point in hex.
     Default `1`.
 
 - **name**
@@ -231,12 +249,6 @@ section for more information.
 
     Show the Unicode name of the character.
     Default `1`.
-
-- **visible**
-- **--**\[**no-**\]**visible**
-
-    Display invisible characters in a visible string representation.
-    Default `0`.
 
 - **alignto**=_column_
 - **--alignto**=_column_

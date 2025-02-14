@@ -13,51 +13,51 @@ our $VERSION = "0.9906";
 App::Greple::charcode - greple module to annotate unicode character data
 
 =for html <p>
-<img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
+<img width="566" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
 </p>
 
 =head1 SYNOPSIS
 
-B<greple> B<-Mcharcode> ...
+  greple -Mcharcode ...
+  greple -Mcharcode [ module option ] -- [ command option ] ...
 
-B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<command option> ] ...
+    COMMAND OPTION
+      --no-annotate  do not print annotation
+      --[no-]align   align annotations
+      --align-all    align to the same column for all lines
+      --align-side   align to the longest line
 
-  COMMAND OPTION
-    --no-annotate  do not print annotation
-    --[no-]align   align annotations
-    --align-all    align to the same column for all lines
-    --align-side   align to the longest line
+    UNICODE
+      --composite    find composite character (combining character sequence)
+      --precomposed  find precomposed character
+      --combined     find both composite and precomposed characters
+      --dt=type      specify decomposition type
+      --surrogate    find character in UTF-16 surrogate pair range
+      --outstand     find non-ASCII combining characters
+      -p/-P prop     find \p{prop} or \P{prop} characters
 
-  UNICODE
-    --composite    find composite character (combining character sequence)
-    --precomposed  find precomposed character
-    --combined     find both composite and precomposed characters
-    --dt=type      specify decomposition type
-    --surrogate    find character in UTF-16 surrogate pair range
-    --outstand     find non-ASCII combining characters
-    -p/-P prop     find \p{prop} or \P{prop} characters
+    ANSI
+      --ansicode     find ANSI terminal control sequences
 
-  ANSI
-    --ansicode     find ANSI terminal control sequences
+    MODULE OPTION
+      --[no-]column  display column number
+      --[no-]visible display character name
+      --[no-]char    display character itself
+      --[no-]width   display width
+      --[no-]utf8    display UTF-8 encoding
+      --[no-]utf16   display UTF-16 encoding
+      --[no-]code    display unicode code point
+      --[no-]name    display character name
+      --[no-]split   put annotattion for each character
+      --alignto=#    align annotation to #
 
-  MODULE OPTION
-    --[no-]column  display column number
-    --[no-]char    display character itself
-    --[no-]width   display width
-    --[no-]code    display character code
-    --[no-]name    display character name
-    --[no-]visible display character name
-    --[no-]split   put annotattion for each character
-    --alignto=#    align annotation to #
+      --config KEY[=VALUE],...
+               (KEY: column char width code name visible align)
 
-    --config KEY[=VALUE],...
-             (KEY: column char width code name visible align)
+  greple -Mcc ...
+  greple -Mcc [ module option ] -- [ command option ] ...
 
-B<greple> B<-Mcc> ...
-
-B<greple> B<-Mcc> [ I<module option> ] -- [ I<command option> ] ...
-
-    -Mcc           alias module for -Mcharcode
+      -Mcc  alias module for -Mcharcode
 
 =head1 VERSION
 
@@ -222,6 +222,13 @@ Set configuration parameters.
 Show column number.
 Default C<1>.
 
+=item B<visible>
+
+=item B<-->[B<no->]B<visible>
+
+Display invisible characters in a visible string representation.
+Default C<0>.
+
 =item B<char>
 
 =item B<-->[B<no->]B<char>
@@ -236,11 +243,25 @@ Default C<0>.
 Show the width.
 Default C<0>.
 
+=item B<utf8>
+
+=item B<-->[B<no->]B<utf8>
+
+Show the UTF-8 encoding in hex.
+Default C<0>.
+
+=item B<utf16>
+
+=item B<-->[B<no->]B<utf16>
+
+Show the UTF-16 encoding in hex.
+Default C<0>.
+
 =item B<code>
 
 =item B<-->[B<no->]B<code>
 
-Show the character code in hex.
+Show the character code point in hex.
 Default C<1>.
 
 =item B<name>
@@ -249,13 +270,6 @@ Default C<1>.
 
 Show the Unicode name of the character.
 Default C<1>.
-
-=item B<visible>
-
-=item B<-->[B<no->]B<visible>
-
-Display invisible characters in a visible string representation.
-Default C<0>.
 
 =item B<alignto>=I<column>
 
@@ -378,8 +392,8 @@ our $config = Getopt::EX::Config->new(
     utf16   => 0,
     code    => 0,
     name    => 1,
-    alignto => \$App::Greple::annotate::config->{alignto},
     split   => \$App::Greple::annotate::config->{split},
+    alignto => \$App::Greple::annotate::config->{alignto},
 );
 my %type = ( alignto => '=i', '*' => '!' );
 lock_keys %{$config};
