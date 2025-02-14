@@ -53,16 +53,23 @@ B<greple> B<-Mcharcode> [ I<module option> ] -- [ I<command option> ] ...
     --config KEY[=VALUE],...
              (KEY: column char width code name visible align)
 
+B<greple> B<-Mcc> ...
+
+B<greple> B<-Mcc> [ I<module option> ] -- [ I<command option> ] ...
+
+    -Mcc           alias module for -Mcharcode
+
 =head1 VERSION
 
 Version 0.9905
 
 =head1 DESCRIPTION
 
-C<App::Greple::charcode> displays Unicode information about the
-matched characters.  It can also visualize zero-width combining or
-hidden characters, which can be useful for examining text containing
-visually indistinguishable or imperceptible elements.
+Greple module C<-Mcharcode> (or C<-Mcc> for short) displays
+information about the matched characters.  It can also visualize
+Unicode zero-width combining or hidden characters, which can be useful
+for examining text containing visually indistinguishable or
+imperceptible elements.
 
 The following output, retrieved from this document for non-ASCII
 characters (C<\P{ASCII}>), shows that the character C<\N{VARIATION
@@ -324,13 +331,16 @@ Kazumasa Utashiro
 
 =cut
 
+use Exporter 'import';
+our @EXPORT_OK = qw(config);
+our %EXPORT_TAGS = (alias => \@EXPORT_OK);
+
 use Getopt::EX::Config;
 use Hash::Util qw(lock_keys);
 use Data::Dumper;
+use Text::ANSI::Fold::Util qw(ansi_width);
 
 use App::Greple::annotate;
-
-our $opt_annotate = 0;
 
 our $config = Getopt::EX::Config->new(
     column  => 1,
@@ -412,11 +422,11 @@ sub visible {
 sub describe {
     local $_ = shift;
     my @s;
-    push @s, "{$_}"                         if $config->{char};
-    push @s, sprintf("\\w{%d}", vwidth($_)) if $config->{width};
-    push @s, visible($_)                    if $config->{visible};
-    push @s, join '', map { charcode } /./g if $config->{code};
-    push @s, join '', map { charname } /./g if $config->{name};
+    push @s, "{$_}"                           if $config->{char};
+    push @s, sprintf "\\w{%d}", ansi_width $_ if $config->{width};
+    push @s, visible $_                       if $config->{visible};
+    push @s, join '', map { charcode } /./g   if $config->{code};
+    push @s, join '', map { charname } /./g   if $config->{name};
     join "\N{NBSP}", @s;
 }
 
@@ -483,8 +493,11 @@ expand --visible-option \
     --charcode::config code=0,name=0,visible=1 \
     --cm=N
 
+option --ansicode-raw \
+    -E '(?#ansicode)(?:ANSI-RESET)+|(?:ANSI-CSI)'
+
 option --ansicode \
-    --visible-option -E '(?#ansicode)(?:ANSI-RESET)+|(?:ANSI-CSI)'
+    --visible-option --ansicode-raw
 
 option --ansicode-each \
     --visible-option -E ANSI-CSI

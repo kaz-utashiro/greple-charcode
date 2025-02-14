@@ -46,16 +46,23 @@ App::Greple::charcode - greple module to annotate unicode character data
       --config KEY[=VALUE],...
                (KEY: column char width code name visible align)
 
+**greple** **-Mcc** ...
+
+**greple** **-Mcc** \[ _module option_ \] -- \[ _command option_ \] ...
+
+    -Mcc           alias module for -Mcharcode
+
 # VERSION
 
 Version 0.9905
 
 # DESCRIPTION
 
-`App::Greple::charcode` displays Unicode information about the
-matched characters.  It can also visualize zero-width combining or
-hidden characters, which can be useful for examining text containing
-visually indistinguishable or imperceptible elements.
+Greple module `-Mcharcode` (or `-Mcc` for short) displays
+information about the matched characters.  It can also visualize
+Unicode zero-width combining or hidden characters, which can be useful
+for examining text containing visually indistinguishable or
+imperceptible elements.
 
 The following output, retrieved from this document for non-ASCII
 characters (`\P{ASCII}`), shows that the character `\N{VARIATION
