@@ -54,7 +54,7 @@ App::Greple::charcode - greple module to annotate unicode character data
 
 # VERSION
 
-Version 0.9905
+Version 0.9906
 
 # DESCRIPTION
 
