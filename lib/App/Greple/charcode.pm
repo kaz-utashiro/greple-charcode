@@ -387,7 +387,7 @@ use Unicode::UCD qw(charinfo);
 
 sub charname {
     local $_ = @_ ? shift : $_;
-    s/(.)/name($1)/ger;
+    s/(.)/name($1)/sger;
 }
 
 sub name {
