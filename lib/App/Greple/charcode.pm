@@ -335,6 +335,7 @@ use Exporter 'import';
 our @EXPORT_OK = qw(config);
 our %EXPORT_TAGS = (alias => \@EXPORT_OK);
 
+use Encode qw(encode decode);
 use Getopt::EX::Config;
 use Hash::Util qw(lock_keys);
 use Data::Dumper;
@@ -344,9 +345,11 @@ use App::Greple::annotate;
 
 our $config = Getopt::EX::Config->new(
     column  => 1,
+    visible => 1,
     char    => 0,
     width   => 0,
-    visible => 1,
+    utf8    => 0,
+    utf16   => 0,
     code    => 0,
     name    => 1,
     alignto => \$App::Greple::annotate::config->{alignto},
@@ -355,6 +358,10 @@ our $config = Getopt::EX::Config->new(
 my %type = ( alignto => '=i', '*' => '!' );
 lock_keys %{$config};
 
+our %CONFIG_TAGS = (
+    field => [ qw(column visible char width utf8 utf16 code name) ],
+);
+
 sub finalize {
     our($mod, $argv) = @_;
     $config->deal_with(
@@ -362,10 +369,17 @@ sub finalize {
 	(
 	    map {
 		my $type = $type{$_} // $type{'*'};
-		( $_.$type => ref $config->{$_} ? $config->{$_} : \$config->{$_} ) ;
+		my $ref = ref $config->{$_} ? $config->{$_} : \$config->{$_};
+		( $_.$type => $ref ) ;
 	    }
 	    keys %{$config}
 	),
+	'all:1' => sub {
+	    for ($CONFIG_TAGS{field}->@*) {
+		my $ref = ref $config->{$_} ? $config->{$_} : \$config->{$_};
+		$$ref = $_[1];
+	    }
+	},
     );
 }
 
@@ -382,8 +396,21 @@ sub name {
 }
 
 sub charcode {
-    local $_ = @_ ? shift : $_;
-    state $format = [ qw(\x{%02x} \x{%04x}) ];
+    local *_ = @_ ? \$_[0] : \$_;
+    s/(.)/code($1)/ger;
+}
+
+sub utf8 {
+    utf('UTF-8', @_);
+}
+
+sub utf16 {
+    utf('UTF-16', @_);
+}
+
+sub utf {
+    my $code = shift;
+    local $_ = encode($code, @_ ? shift : $_);
     s/(.)/code($1)/ger;
 }
 
@@ -404,7 +431,7 @@ my %cmap = (
 );
 
 sub control {
-    local $_ = @_ ? shift : $_;
+    local $_ = @_ ? $_[0] : $_;
     if (s/\A([\t\n\r\f\b\a\e])/$cmap{$1}/e) {
 	$_;
     } elsif (s/\A([\x00-\x1f])/sprintf "\\c%c", ord($1)+0x40/e) {
@@ -414,31 +441,35 @@ sub control {
     }
 }
 
+my $invisible_re = $ENV{INVISIBLE_RE} = qr/[^\pL\pN\pP\pS]/;
+
 sub visible {
-    local $_ = @_ ? shift : $_;
-    s{([^\pL\pN\pP\pS])}{control($1)}ger;
+    local *_ = @_ ? \$_[0] : \$_;
+    s{($invisible_re)}{control($1)}ger;
+}
+
+sub width {
+    local *_ = @_ ? \$_[0] : \$_;
+    ansi_width($_);
 }
 
 sub describe {
-    local $_ = shift;
+    my %param = @_;
+    my $column = $param{column};
+    local $_   = $param{match};
     my @s;
-    push @s, "{$_}"                           if $config->{char};
-    push @s, sprintf "\\w{%d}", ansi_width $_ if $config->{width};
-    push @s, visible $_                       if $config->{visible};
-    push @s, join '', map { charcode } /./g   if $config->{code};
-    push @s, join '', map { charname } /./g   if $config->{name};
+    push @s, sprintf("%3d ", $column)     if $config->{column};
+    push @s, sprintf("%s", visible)       if $config->{visible};
+    push @s, sprintf("raw=\"%s\"", $_)    if $config->{char};
+    push @s, sprintf("w=%d", width)       if $config->{width};
+    push @s, sprintf("utf8=%s", utf8)     if $config->{utf8};
+    push @s, sprintf("utf16=%s", utf16)   if $config->{utf16};
+    push @s, sprintf("code=%s", charcode) if $config->{code};
+    push @s, sprintf("name=%s", charname) if $config->{name};
     join "\N{NBSP}", @s;
 }
 
-sub annotate {
-    my %param = @_;
-    my $annon = '';
-    $annon .= sprintf("%3d ", $param{column}) if $config->{column};
-    $annon .= describe($param{match});
-    $annon;
-}
-
-$App::Greple::annotate::ANNOTATE = \&annotate;
+$App::Greple::annotate::ANNOTATE = \&describe;
 
 1;
 
@@ -470,6 +501,8 @@ option --noncanon    --decomposition-type=NonCanon
 
 option --combined \
     --precomposed --composite
+
+option --invisible -E '$ENV{INVISIBLE_RE}'
 
 option --outstand \
     --combined -E '(?#outstand)(?=\P{ASCII})\X'

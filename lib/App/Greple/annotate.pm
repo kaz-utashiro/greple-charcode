@@ -181,7 +181,8 @@ use Text::ANSI::Fold::Util qw(ansi_width);
 Text::ANSI::Fold->configure(expand => 1);
 *vwidth = \&ansi_width;
 
-package Local::Annon {
+package # no_index
+Local::Annon {
     use strict;
     use warnings;
     sub new {
@@ -194,7 +195,8 @@ package Local::Annon {
     sub annon :lvalue { shift->[2] }
 }
 
-package Local::Annon::List {
+package # no_index
+Local::Annon::List {
     use strict;
     use warnings;
     use List::Util;
