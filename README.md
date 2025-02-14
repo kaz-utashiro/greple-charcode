@@ -5,7 +5,7 @@ App::Greple::charcode - greple module to annotate unicode character data
 
 <div>
     <p>
-    <img width="425" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
+    <img width="566" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
     </p>
 </div>
 
@@ -33,16 +33,16 @@ App::Greple::charcode - greple module to annotate unicode character data
         --ansicode     find ANSI terminal control sequences
 
       MODULE OPTION
-        --[no-]column  display column number
-        --[no-]visible display character name
-        --[no-]char    display character itself
-        --[no-]width   display width
-        --[no-]utf8    display UTF-8 encoding
-        --[no-]utf16   display UTF-16 encoding
-        --[no-]code    display unicode code point
-        --[no-]name    display character name
-        --[no-]split   put annotattion for each character
-        --alignto=#    align annotation to #
+         --column[=#]  display column number
+        --visible[=#]  display character name
+           --char[=#]  display character itself
+          --width[=#]  display width
+           --utf8[=#]  display UTF-8 encoding
+          --utf16[=#]  display UTF-16 encoding
+           --code[=#]  display unicode code point
+           --name[=#]  display character name
+          --split[=#]  put annotattion for each character
+        --alignto[=#]  align annotation to #
 
         --config KEY[=VALUE],...
                  (KEY: column char width code name visible align)
@@ -203,52 +203,58 @@ section for more information.
     Set configuration parameters.
 
 - **column**
-- **--**\[**no-**\]**column**
+- **--column**\[=_#_\]
 
     Show column number.
     Default `1`.
 
 - **visible**
-- **--**\[**no-**\]**visible**
+- **--visible**\[=_#_\]
 
     Display invisible characters in a visible string representation.
     Default `0`.
 
 - **char**
-- **--**\[**no-**\]**char**
+- **--char**\[=_#_\]
 
     Show the character itself.
     Default `0`.
 
 - **width**
-- **--**\[**no-**\]**width**
+- **--width**\[=_#_\]
 
     Show the width.
     Default `0`.
 
 - **utf8**
-- **--**\[**no-**\]**utf8**
+- **--utf8**\[=_#_\]
 
     Show the UTF-8 encoding in hex.
     Default `0`.
 
 - **utf16**
-- **--**\[**no-**\]**utf16**
+- **--utf16**\[=_#_\]
 
     Show the UTF-16 encoding in hex.
     Default `0`.
 
 - **code**
-- **--**\[**no-**\]**code**
+- **--code**\[=_#_\]
 
     Show the character code point in hex.
     Default `1`.
 
 - **name**
-- **--**\[**no-**\]**name**
+- **--name**\[=_#_\]
 
     Show the Unicode name of the character.
     Default `1`.
+
+- **split**
+- **--split**\[=_#_\]
+
+    If a pattern matching multiple characters is given, annotate each
+    character independently.
 
 - **alignto**=_column_
 - **--alignto**=_column_
@@ -261,12 +267,6 @@ section for more information.
     column for all lines.  If `-2` is specified, align to the longest
     line length, regardless of match position.
 
-- **split**
-- **--**\[**no-**\]**split**
-
-    If a pattern matching multiple characters is given, annotate each
-    character independently.
-
 # CONFIGURATION
 
 Configuration parameters can be set in several ways.
@@ -276,24 +276,24 @@ Configuration parameters can be set in several ways.
 The start function of a module can be specified at the same time as
 the module declaration.
 
-    greple -Mannotate::config(alignto=0)
+    greple -Mcharcode::config(alignto=0)
 
-    greple -Mannotate::config=alignto=80
+    greple -Mcharcode::config=alignto=80
 
 ## PRIVATE MODULE OPTION
 
-Module-specific options are specified between `-Mannotate` and `--`.
+Module-specific options are specified between `-Mcharcode` and `--`.
 
-    greple -Mannotate --config alignto=80 -- ...
+    greple -Mcharcode --config alignto=80 -- ...
 
-    greple -Mannotate --alignto=80 -- ...
+    greple -Mcharcode --alignto=80 -- ...
 
 ## GENERIC MODULE OPTION
 
 Module-specific `---config` option can be called by normal command
-line option `--annotate::config`.
+line option `--charcode::config`.
 
-    greple -Mannotate --annotate::config alignto=80 ...
+    greple -Mcharcode --charcode::config alignto=80 ...
 
 # EXAMPLES
 
