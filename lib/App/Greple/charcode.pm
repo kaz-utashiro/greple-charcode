@@ -502,7 +502,8 @@ option --noncanon    --decomposition-type=NonCanon
 option --combined \
     --precomposed --composite
 
-option --invisible -E '$ENV{INVISIBLE_RE}'
+option --INVISIBLE --cm=N -E '$ENV{INVISIBLE_RE}'
+option --invisible --cm=N -E '(?!\p{Blank}|\R)$ENV{INVISIBLE_RE}'
 
 option --outstand \
     --combined -E '(?#outstand)(?=\P{ASCII})\X'
