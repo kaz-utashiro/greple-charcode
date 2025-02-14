@@ -283,6 +283,38 @@ line option `--annotate::config`.
 
     greple -Mannotate --annotate::config alignto=80 ...
 
+# EXAMPLES
+
+## HOMOGLYPH
+
+    greple -Mcc -P ASCII --align-side --cm=S t/homoglyph
+
+<div>
+    <p>
+    <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
+    </p>
+</div>
+
+## BOX DRAWINGS
+
+    perldoc -m App::ansicolumn::Border | greple -Mline -Mcc --code -- --outstand --mc=10,
+
+<div>
+    <p>
+    <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/box-drawing.png">
+    </p>
+</div>
+
+## AYNU ITAK
+
+    greple -Mcc --outstand --split t/ainu.txt
+
+<div>
+    <p>
+    <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/aynu.png">
+    </p>
+</div>
+
 # INSTALL
 
     cpanm -n App::Greple::charcode
