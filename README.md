@@ -11,8 +11,7 @@ App::Greple::charcode - greple module to annotate unicode character data
 
 # SYNOPSIS
 
-    greple -Mcharcode ...
-    greple -Mcharcode [ module option ] -- [ command option ] ...
+    greple -Mcharcode [ module option -- ] [ command option ] ...
 
       COMMAND OPTION
         --no-annotate  do not print annotation
@@ -20,16 +19,15 @@ App::Greple::charcode - greple module to annotate unicode character data
         --align-all    align to the same column for all lines
         --align-side   align to the longest line
 
-      UNICODE
+        PATTERNS
         --composite    find composite character (combining character sequence)
         --precomposed  find precomposed character
         --combined     find both composite and precomposed characters
+        --outstand     find --combined and non-ASCII characters
         --dt=type      specify decomposition type
         --surrogate    find character in UTF-16 surrogate pair range
         --outstand     find non-ASCII combining characters
         -p/-P prop     find \p{prop} or \P{prop} characters
-
-      ANSI
         --ansicode     find ANSI terminal control sequences
 
       MODULE OPTION
@@ -45,10 +43,8 @@ App::Greple::charcode - greple module to annotate unicode character data
         --alignto[=#]  align annotation to #
 
         --config KEY[=VALUE],...
-                 (KEY: column char width code name visible align)
 
-    greple -Mcc ...
-    greple -Mcc [ module option ] -- [ command option ] ...
+    greple -Mcc [ module option -- ] [ command option ] ...
 
         -Mcc  alias module for -Mcharcode
 
@@ -59,10 +55,10 @@ Version 0.9907
 # DESCRIPTION
 
 Greple module `-Mcharcode` (or `-Mcc` for short) displays
-information about the matched characters.  It can also visualize
-Unicode zero-width combining or hidden characters, which can be useful
-for examining text containing visually indistinguishable or
-imperceptible elements.
+information about the matched characters.  It can visualize Unicode
+zero-width combining or hidden characters, which can be useful for
+examining text containing visually indistinguishable or imperceptible
+elements.
 
 The following output, retrieved from this document for non-ASCII
 characters (`\P{ASCII}`), shows that the character `\N{VARIATION
@@ -295,33 +291,32 @@ line option `--charcode::config`.
 
     greple -Mcharcode --charcode::config alignto=80 ...
 
-# EXAMPLES
-
-## HOMOGLYPH
-
-    greple -Mcc -P ASCII --align-side --cm=S t/homoglyph
-
 <div>
+    # EXAMPLES
+
+    ## HOMOGLYPH
+
+        greple -Mcc -P ASCII --align-side --cm=S t/homoglyph
+
+
     <p>
     <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
     </p>
-</div>
 
-## BOX DRAWINGS
+    ## BOX DRAWINGS
 
-    perldoc -m App::ansicolumn::Border | greple -Mline -Mcc --code -- --outstand --mc=10,
+        perldoc -m App::ansicolumn::Border | greple -Mcc --code -- --outstand --mc=10,
 
-<div>
+
     <p>
     <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/box-drawing.png">
     </p>
-</div>
 
-## AYNU ITAK
+    ## AYNU ITAK
 
-    greple -Mcc --outstand --split t/ainu.txt
+        greple -Mcc --outstand --split t/ainu.txt
 
-<div>
+
     <p>
     <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/aynu.png">
     </p>

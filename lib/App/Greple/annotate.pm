@@ -62,6 +62,10 @@ Align to the same column for all lines
 
 Align to the longest line length, regardless of match position.
 
+=item B<--alignto>=I<column>
+
+Align to I<column> position.
+
 =back
 
 =head1 MODULE OPTIONS and PARAMS
@@ -348,7 +352,8 @@ sub _prepare {
 		$current->push( do {
 		    my $maker = sub {
 			my($head, $match) = @_;
-			sprintf("%s%s─\N{NBSP}%s", $indent, $head,
+			sprintf("%s%s%s\N{NBSP}%s",
+				$indent, $head, '─',
 				$ANNOTATE->(column => $start, match => $match));
 		    };
 		    if ($config->{split}) {
