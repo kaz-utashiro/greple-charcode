@@ -573,3 +573,5 @@ option --ansicode-seq \
 
 option -p -E '\p{$<shift>}'
 option -P -E '\P{$<shift>}'
+
+option --align-field --of 'ansicolumn -trs " " -o " "'
