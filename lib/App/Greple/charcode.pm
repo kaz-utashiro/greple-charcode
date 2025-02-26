@@ -316,15 +316,13 @@ line option C<--charcode::config>.
 
     greple -Mcharcode --charcode::config alignto=80 ...
 
-=begin html
-
 =head1 EXAMPLES
 
 =head2 HOMOGLYPH
 
     greple -Mcc -P ASCII --align-side --cm=S t/homoglyph
 
-<p>
+=for html <p>
 <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/homoglyph.png">
 </p>
 
@@ -332,7 +330,7 @@ line option C<--charcode::config>.
 
     perldoc -m App::ansicolumn::Border | greple -Mcc --code -- --outstand --mc=10,
 
-<p>
+=for html <p>
 <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/box-drawing.png">
 </p>
 
@@ -340,11 +338,9 @@ line option C<--charcode::config>.
 
     greple -Mcc --outstand --split t/ainu.txt
 
-<p>
+=for html <p>
 <img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/greple-charcode/refs/heads/main/images/aynu.png">
 </p>
-
-=end html
 
 =head1 INSTALL
 
