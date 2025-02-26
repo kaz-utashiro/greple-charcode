@@ -178,21 +178,14 @@ our $config = Getopt::EX::Config->new(
     alignto => 1,
     split => 0,
 );
-my %type = ( '*' => ':1' );
 lock_keys %{$config};
+my %type = ( '*' => ':1' );
+sub optspec { $_[0] . ( $type{$_[0]} // $type{'*'} // '' ) }
 
 sub finalize {
     our($mod, $argv) = @_;
-    $config->deal_with(
-	$argv,
-	(
-	    map {
-		my $type = $type{$_} // $type{'*'};
-		( $_.$type => ref $config->{$_} ? $config->{$_} : \$config->{$_} ) ;
-	    }
-	    keys %{$config}
-	),
-    );
+    $config->deal_with($argv,
+		       map(optspec($_), keys %{$config}));
 }
 
 use Text::ANSI::Fold::Util qw(ansi_width);
