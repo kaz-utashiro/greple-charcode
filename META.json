@@ -48,6 +48,7 @@
             "Hash::Util" : "0",
             "Text::ANSI::Fold" : "2.29",
             "Text::ANSI::Fold::Util" : "0",
+            "Text::VisualWidth::PP" : "0.08",
             "Unicode::UCD" : "0",
             "perl" : "5.024"
          }
