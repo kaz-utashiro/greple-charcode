@@ -484,14 +484,14 @@ sub width {
 sub describe {
     (my $column, local $_) = { @_ }->@{ qw(column match) };
     my @s;
-    push @s, sprintf        '%3d' , $column  if $config->{column};
-    push @s, sprintf        '%s'  , visible  if $config->{visible};
-    push @s, sprintf  'char="%s"' , $_       if $config->{char};
-    push @s, sprintf     'w=%d'   , width    if $config->{width};
-    push @s, sprintf  'utf8=%s'   , utf8     if $config->{utf8};
-    push @s, sprintf 'utf16=%s'   , utf16    if $config->{utf16};
-    push @s, sprintf  'code=%s'   , charcode if $config->{code};
-    push @s, sprintf  'name=%s'   , charname if $config->{name};
+    push @s, sprintf qw'       %3d ' , $column  if $config->{column};
+    push @s, sprintf qw'       %s  ' , visible  if $config->{visible};
+    push @s, sprintf qw' char="%s" ' , $_       if $config->{char};
+    push @s, sprintf qw'     w=%d  ' , width    if $config->{width};
+    push @s, sprintf qw'  utf8=%s  ' , utf8     if $config->{utf8};
+    push @s, sprintf qw' utf16=%s  ' , utf16    if $config->{utf16};
+    push @s, sprintf qw'  code=%s  ' , charcode if $config->{code};
+    push @s, sprintf qw'  name=%s  ' , charname if $config->{name};
     join "\N{NBSP}", @s;
 }
 
