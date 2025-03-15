@@ -342,22 +342,21 @@ sub _prepare {
 			substr($indent, $start) = '';
 		    }
 		}
+		my $marker = sub {
+		    my($head, $match) = @_;
+		    sprintf("%s%s%s\N{NBSP}%s",
+			    $indent, $head, '─',
+			    $ANNOTATE->(column => $start, match => $match));
+		};
 		$current->push( do {
-		    my $maker = sub {
-			my($head, $match) = @_;
-			sprintf("%s%s%s\N{NBSP}%s",
-				$indent, $head, '─',
-				$ANNOTATE->(column => $start, match => $match));
-		    };
 		    if ($config->{split}) {
 			map {
-			    my $out = $maker->($head, $_);
+			    my $out = $marker->($head, $_);
 			    $head = '├';
 			    Local::Annon->new($start, $end, $out);
-			}
-			$slice =~ /./sg;
+			} $slice =~ /./sg;
 		    } else {
-			Local::Annon->new($start, $end, $maker->($head, $slice));
+			Local::Annon->new($start, $end, $marker->($head, $slice));
 		    }
 		} );
 	    }
