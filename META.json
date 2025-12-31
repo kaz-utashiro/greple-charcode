@@ -44,7 +44,7 @@
          "requires" : {
             "App::Greple" : "9.2101",
             "App::ansicolumn" : "0",
-            "Getopt::EX::Config" : "1.02",
+            "Getopt::EX::Config" : "1.0201",
             "Hash::Util" : "0",
             "Text::ANSI::Fold" : "2.29",
             "Text::ANSI::Fold::Util" : "0",
