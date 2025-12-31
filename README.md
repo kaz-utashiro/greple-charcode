@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/kaz-utashiro/greple-charcode/actions/workflows/test.yml/badge.svg)](https://github.com/kaz-utashiro/greple-charcode/actions) [![MetaCPAN Release](https://badge.fury.io/pl/App-Greple-charcode.svg)](https://metacpan.org/release/App-Greple-charcode)
+[![Actions Status](https://github.com/kaz-utashiro/greple-charcode/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/kaz-utashiro/greple-charcode/actions?workflow=test) [![MetaCPAN Release](https://badge.fury.io/pl/App-Greple-charcode.svg)](https://metacpan.org/release/App-Greple-charcode)
 # NAME
 
 App::Greple::charcode - greple module to annotate unicode character data
@@ -45,7 +45,6 @@ App::Greple::charcode - greple module to annotate unicode character data
            --nfkc[=#]  display Unicode Normalization Form KC
           --split[=#]  put annotattion for each character
         --alignto[=#]  align annotation to #
-
 
         --config KEY[=VALUE],...
 

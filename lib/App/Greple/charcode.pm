@@ -53,7 +53,6 @@ App::Greple::charcode - greple module to annotate unicode character data
         --split[=#]  put annotattion for each character
       --alignto[=#]  align annotation to #
 
-
       --config KEY[=VALUE],...
 
   greple -Mcc [ module option -- ] [ command option ] ...
